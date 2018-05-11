@@ -1,0 +1,99 @@
+swagger: "2.0"
+info:
+  title: beego Test API
+  description: beego has a very cool tools to autogenerate documents for your API
+  version: 1.0.0
+  termsOfService: http://beego.me/
+  contact:
+    email: astaxie@gmail.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+basePath: /api/v1
+paths:
+  /account/login:
+    post:
+      tags:
+      - account
+      description: Login server by username and password
+      operationId: UserController.Logout server
+      parameters:
+      - in: body
+        name: body
+        description: body for user content
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+      responses:
+        "201":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.User'
+definitions:
+  models.Team:
+    title: Team
+    type: object
+    properties:
+      CreationTime:
+        type: string
+        format: string
+      CreatorID:
+        type: integer
+        format: int32
+      Description:
+        type: string
+      ID:
+        type: string
+      TeamName:
+        type: string
+      Users:
+        type: array
+        items:
+          $ref: '#/definitions/models.User'
+  models.User:
+    title: User
+    type: object
+    properties:
+      APIToken:
+        type: string
+      Active:
+        type: integer
+        format: int32
+      Company:
+        type: string
+      CreationTime:
+        type: string
+        format: string
+      Displayname:
+        type: string
+      Email:
+        type: string
+      ID:
+        type: integer
+        format: int32
+      LastLoginTime:
+        type: string
+        format: string
+      LoginFrequency:
+        type: integer
+        format: int64
+      Name:
+        type: string
+      Password:
+        type: string
+      Phone:
+        type: string
+      Role:
+        type: integer
+        format: int32
+      Teams:
+        type: array
+        items:
+          $ref: '#/definitions/models.Team'
+      Type:
+        type: integer
+        format: int64
+tags:
+- name: account
+  description: |
+    UserController user controller
