@@ -1,8 +1,25 @@
+/*
+Copyright [yyyy] [name of copyright owner]
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+	http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 package client
 
 import (
 	"fmt"
 	"io"
+	"ipaas/pkg/tools/jsonx"
 	"os"
 	"path/filepath"
 
@@ -33,6 +50,7 @@ func init() {
 	}
 
 	for k := range clusters {
+		glog.Info(jsonx.ToJSON(clusters[k]))
 		if clusters[k].APIToken == "" {
 			if err = file.Truncate(0); err != nil {
 				glog.Fatalf("clean k8s tmp config file err: %v", err)
@@ -42,15 +60,15 @@ func init() {
 			}
 			cs, err := newClientsetByConfile(config)
 			if err != nil {
-				glog.Fatalf("create k8s client err: %v, who's clusterID is %q", err, clusters[k].ClusterID)
+				glog.Fatalf("create k8s client err: %v, who's clusterID is %q", err, clusters[k].ID)
 			}
-			fakes[clusters[k].ClusterID] = &ClientSet{Clientset: cs}
+			fakes[clusters[k].ID] = &ClientSet{Clientset: cs}
 		} else {
 			cs, err := newClientsetByToken(clusters[k].ClusterName, clusters[k].APIProtocol, clusters[k].APIHost, clusters[k].APIToken, clusters[k].APIVersion)
 			if err != nil {
-				glog.Fatalf("create k8s client err: %v, who's clusterID is %q", err, clusters[k].ClusterID)
+				glog.Fatalf("create k8s client err: %v, who's clusterID is %q", err, clusters[k].ID)
 			}
-			fakes[clusters[k].ClusterID] = &ClientSet{Clientset: cs}
+			fakes[clusters[k].ID] = &ClientSet{Clientset: cs}
 		}
 	}
 	os.RemoveAll(config)
@@ -84,9 +102,9 @@ func newClientsetByToken(clusterName, apiserverProtocol, apiserverHost, apiserve
 }
 
 //GetClientset return clientset
-func GetClientset(clusterID string) (clientse *ClientSet, exist bool) {
-	clientse, exist = fakes[clusterID]
-	return
+func GetClientset(clusterID string) (*ClientSet, bool) {
+	clientse, exist := fakes[clusterID]
+	return clientse, exist
 }
 
 //GetClientsets return clientsets
@@ -113,18 +131,18 @@ func AddClientset(c *infrastructure.Cluster) error {
 		}
 		cs, err := newClientsetByConfile(config)
 		if err != nil {
-			glog.Fatalf("create k8s client err: %v, who's clusterID is %q", err, c.ClusterID)
+			glog.Fatalf("create k8s client err: %v, who's clusterID is %q", err, c.ID)
 			return err
 		}
-		fakes[c.ClusterID] = &ClientSet{Clientset: cs}
+		fakes[c.ID] = &ClientSet{Clientset: cs}
 		os.RemoveAll(config)
 	} else {
 		cs, err := newClientsetByToken(c.ClusterName, c.APIProtocol, c.APIHost, c.APIToken, c.APIVersion)
 		if err != nil {
-			glog.Fatalf("create k8s client err: %v, who's clusterID is %q", err, c.ClusterID)
+			glog.Fatalf("create k8s client err: %v, who's clusterID is %q", err, c.ID)
 			return err
 		}
-		fakes[c.ClusterID] = &ClientSet{Clientset: cs}
+		fakes[c.ID] = &ClientSet{Clientset: cs}
 	}
 	return nil
 }

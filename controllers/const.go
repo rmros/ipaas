@@ -14,11 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package cache
+package controllers
 
-type store struct {
-}
+import (
+	"time"
+)
 
-func sync() {
-
-}
+const TOKEN_EXPIRE_TIME = 60 * 2 * time.Millisecond * 1000
