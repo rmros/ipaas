@@ -14,10 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package v1beta1
+package v1
 
 import (
-	"k8s.io/api/apps/v1beta1"
+	appsv1 "k8s.io/api/apps/v1"
 	"k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -26,12 +26,12 @@ import (
 
 //DeploymentInterface has methods to work with Deployment resources.
 type DeploymentInterface interface {
-	CreateDeployment(deployment *v1beta1.Deployment) (*v1beta1.Deployment, error)
-	UpdateDeployment(deployment *v1beta1.Deployment) (*v1beta1.Deployment, error)
+	CreateDeployment(deployment *appsv1.Deployment) (*appsv1.Deployment, error)
+	UpdateDeployment(deployment *appsv1.Deployment) (*appsv1.Deployment, error)
 	DeleteDeployment(name, namespace string) error
 	DeleteDeploymentByLabels(labels, namespace string) error
-	GetDeployment(name, namespace string) (*v1beta1.Deployment, error)
-	ListDeployment(labels, namespace string) ([]v1beta1.Deployment, error)
+	GetDeployment(name, namespace string) (*appsv1.Deployment, error)
+	ListDeployment(labels, namespace string) ([]appsv1.Deployment, error)
 	ListPodByDeploymentName(name, namespace string) ([]v1.Pod, error)
 	ExsitDeployment(name, namespace string) (bool, error)
 }
@@ -46,12 +46,12 @@ func Deployments(client *kubernetes.Clientset) DeploymentInterface {
 	return &deployments{Clientset: client}
 }
 
-func (client *deployments) CreateDeployment(deployment *v1beta1.Deployment) (*v1beta1.Deployment, error) {
-	return client.AppsV1beta1().Deployments(deployment.Namespace).Create(deployment)
+func (client *deployments) CreateDeployment(deployment *appsv1.Deployment) (*appsv1.Deployment, error) {
+	return client.AppsV1().Deployments(deployment.Namespace).Create(deployment)
 }
 
-func (client *deployments) UpdateDeployment(deploy *v1beta1.Deployment) (*v1beta1.Deployment, error) {
-	return client.AppsV1beta1().Deployments(deploy.Namespace).Update(deploy)
+func (client *deployments) UpdateDeployment(deploy *appsv1.Deployment) (*appsv1.Deployment, error) {
+	return client.AppsV1().Deployments(deploy.Namespace).Update(deploy)
 }
 
 func (client *deployments) DeleteDeployment(name, namespace string) error {
@@ -84,22 +84,22 @@ func (client *deployments) DeleteDeploymentByLabels(labels, namespace string) er
 	return nil
 }
 
-func (client *deployments) GetDeployment(name, namespace string) (*v1beta1.Deployment, error) {
-	deploy, err := client.AppsV1beta1().Deployments(namespace).Get(name, metav1.GetOptions{})
+func (client *deployments) GetDeployment(name, namespace string) (*appsv1.Deployment, error) {
+	deploy, err := client.AppsV1().Deployments(namespace).Get(name, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}
 	return deploy, nil
 }
 
-func (client *deployments) ListDeployment(labels, namespace string) ([]v1beta1.Deployment, error) {
+func (client *deployments) ListDeployment(labels, namespace string) ([]appsv1.Deployment, error) {
 	listOption := metav1.ListOptions{}
 	if labels != "" {
 		listOption.LabelSelector = labels
 	}
-	deploymentList, err := client.AppsV1beta1().Deployments(namespace).List(listOption)
+	deploymentList, err := client.AppsV1().Deployments(namespace).List(listOption)
 	if err != nil {
-		return []v1beta1.Deployment{}, err
+		return []appsv1.Deployment{}, err
 	}
 	return deploymentList.Items, nil
 }
@@ -113,7 +113,7 @@ func (client *deployments) ListPodByDeploymentName(name, namespace string) ([]v1
 }
 
 func (client *deployments) ExsitDeployment(name, namespace string) (bool, error) {
-	deploy, err := client.AppsV1beta1().Deployments(namespace).Get(name, metav1.GetOptions{})
+	deploy, err := client.AppsV1().Deployments(namespace).Get(name, metav1.GetOptions{})
 	if err != nil {
 		return false, err
 	}

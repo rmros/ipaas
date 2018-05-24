@@ -22,11 +22,19 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
+type NamespaceInterface interface {
+	Create(namespace *v1.Namespace) (*v1.Namespace, error)
+	Delete(name string, options *metav1.DeleteOptions) error
+	DeleteCollection(options *metav1.DeleteOptions, listOptions metav1.ListOptions) error
+	Update(namespace *v1.Namespace) (*v1.Namespace, error)
+	List(options metav1.ListOptions) ([]v1.Namespace, error)
+}
+
 type namespaces struct {
 	*kubernetes.Clientset
 }
 
-func Namespaces(cl *kubernetes.Clientset) *namespaces {
+func Namespaces(cl *kubernetes.Clientset) NamespaceInterface {
 	return &namespaces{Clientset: cl}
 }
 
@@ -36,6 +44,10 @@ func (c *namespaces) Create(namespace *v1.Namespace) (*v1.Namespace, error) {
 
 func (c *namespaces) Delete(name string, options *metav1.DeleteOptions) error {
 	return c.CoreV1().Namespaces().Delete(name, options)
+}
+
+func (c *namespaces) DeleteCollection(options *metav1.DeleteOptions, listOptions metav1.ListOptions) error {
+	return c.CoreV1().Namespaces().DeleteCollection(options, listOptions)
 }
 
 func (c *namespaces) Update(namespace *v1.Namespace) (*v1.Namespace, error) {

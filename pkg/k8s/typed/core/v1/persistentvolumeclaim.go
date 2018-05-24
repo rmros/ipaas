@@ -15,3 +15,54 @@ limitations under the License.
 */
 
 package v1
+
+import (
+	"k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
+)
+
+type PersistentVolumeClaimInterface interface {
+	CreatePersistentVolumeClaim(persistentVolumeClaim *v1.PersistentVolumeClaim) (*v1.PersistentVolumeClaim, error)
+	UpdatePersistentVolumeClaim(persistentVolumeClaim *v1.PersistentVolumeClaim) (*v1.PersistentVolumeClaim, error)
+	DeletePersistentVolumeClaim(name, namespace string) error
+	GetPersistentVolumeClaim(name, namespace string) (*v1.PersistentVolumeClaim, error)
+	ListPersistentVolumeClaim(labels, namespace string) ([]v1.PersistentVolumeClaim, error)
+}
+
+func PersistentVolumeClaims(cl *kubernetes.Clientset) PersistentVolumeClaimInterface {
+	return &persistentVolumeClaims{Clientset: cl}
+}
+
+//persistentVolumeClaim implements PersistentVolumeClaimInterface.
+type persistentVolumeClaims struct {
+	*kubernetes.Clientset
+}
+
+func (client *persistentVolumeClaims) CreatePersistentVolumeClaim(persistentVolumeClaim *v1.PersistentVolumeClaim) (*v1.PersistentVolumeClaim, error) {
+	return client.CoreV1().PersistentVolumeClaims(persistentVolumeClaim.Namespace).Create(persistentVolumeClaim)
+}
+
+func (client *persistentVolumeClaims) UpdatePersistentVolumeClaim(persistentVolumeClaim *v1.PersistentVolumeClaim) (*v1.PersistentVolumeClaim, error) {
+	return client.CoreV1().PersistentVolumeClaims(persistentVolumeClaim.Namespace).Update(persistentVolumeClaim)
+}
+
+func (client *persistentVolumeClaims) DeletePersistentVolumeClaim(name, namespace string) error {
+	return client.CoreV1().PersistentVolumeClaims(namespace).Delete(name, &metav1.DeleteOptions{})
+}
+
+func (client *persistentVolumeClaims) GetPersistentVolumeClaim(name, namespace string) (*v1.PersistentVolumeClaim, error) {
+	return client.CoreV1().PersistentVolumeClaims(namespace).Get(name, metav1.GetOptions{})
+}
+
+func (client *persistentVolumeClaims) ListPersistentVolumeClaim(labels string, namespace string) ([]v1.PersistentVolumeClaim, error) {
+	listOption := metav1.ListOptions{}
+	if labels != "" {
+		listOption.LabelSelector = labels
+	}
+	list, err := client.CoreV1().PersistentVolumeClaims(namespace).List(listOption)
+	if err != nil {
+		return []v1.PersistentVolumeClaim{}, err
+	}
+	return list.Items, err
+}

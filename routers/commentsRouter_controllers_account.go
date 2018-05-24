@@ -7,6 +7,70 @@ import (
 
 func init() {
 
+	beego.GlobalControllerRouter["ipaas/controllers/account:SpaceController"] = append(beego.GlobalControllerRouter["ipaas/controllers/account:SpaceController"],
+		beego.ControllerComments{
+			Method: "CreateSpace",
+			Router: `/spaces`,
+			AllowHTTPMethods: []string{"post"},
+			MethodParams: param.Make(),
+			Params: nil})
+
+	beego.GlobalControllerRouter["ipaas/controllers/account:SpaceController"] = append(beego.GlobalControllerRouter["ipaas/controllers/account:SpaceController"],
+		beego.ControllerComments{
+			Method: "ListSpace",
+			Router: `/spaces`,
+			AllowHTTPMethods: []string{"get"},
+			MethodParams: param.Make(),
+			Params: nil})
+
+	beego.GlobalControllerRouter["ipaas/controllers/account:SpaceController"] = append(beego.GlobalControllerRouter["ipaas/controllers/account:SpaceController"],
+		beego.ControllerComments{
+			Method: "DeleteSpace",
+			Router: `/spaces/:space`,
+			AllowHTTPMethods: []string{"delete"},
+			MethodParams: param.Make(),
+			Params: nil})
+
+	beego.GlobalControllerRouter["ipaas/controllers/account:TeamController"] = append(beego.GlobalControllerRouter["ipaas/controllers/account:TeamController"],
+		beego.ControllerComments{
+			Method: "CreateTeam",
+			Router: `/teams`,
+			AllowHTTPMethods: []string{"post"},
+			MethodParams: param.Make(),
+			Params: nil})
+
+	beego.GlobalControllerRouter["ipaas/controllers/account:TeamController"] = append(beego.GlobalControllerRouter["ipaas/controllers/account:TeamController"],
+		beego.ControllerComments{
+			Method: "ListTeam",
+			Router: `/teams`,
+			AllowHTTPMethods: []string{"post"},
+			MethodParams: param.Make(),
+			Params: nil})
+
+	beego.GlobalControllerRouter["ipaas/controllers/account:TeamController"] = append(beego.GlobalControllerRouter["ipaas/controllers/account:TeamController"],
+		beego.ControllerComments{
+			Method: "DeleteTeam",
+			Router: `/teams/:team`,
+			AllowHTTPMethods: []string{"delete"},
+			MethodParams: param.Make(),
+			Params: nil})
+
+	beego.GlobalControllerRouter["ipaas/controllers/account:TeamController"] = append(beego.GlobalControllerRouter["ipaas/controllers/account:TeamController"],
+		beego.ControllerComments{
+			Method: "AddSpace",
+			Router: `/teams/:team/spaces`,
+			AllowHTTPMethods: []string{"post"},
+			MethodParams: param.Make(),
+			Params: nil})
+
+	beego.GlobalControllerRouter["ipaas/controllers/account:TeamController"] = append(beego.GlobalControllerRouter["ipaas/controllers/account:TeamController"],
+		beego.ControllerComments{
+			Method: "AddUsers",
+			Router: `/teams/:team/users`,
+			AllowHTTPMethods: []string{"post"},
+			MethodParams: param.Make(),
+			Params: nil})
+
 	beego.GlobalControllerRouter["ipaas/controllers/account:UserController"] = append(beego.GlobalControllerRouter["ipaas/controllers/account:UserController"],
 		beego.ControllerComments{
 			Method: "Create",

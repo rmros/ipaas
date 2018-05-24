@@ -15,10 +15,600 @@
     },
     "basePath": "/api/v1",
     "paths": {
-        "/account/login": {
+        "/clusters/{cluster}/apps": {
+            "get": {
+                "tags": [
+                    "clusters/:cluster"
+                ],
+                "description": "stop app",
+                "operationId": "AppController.ListApp server",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "body for user content",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.App"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.App"
+                        }
+                    }
+                }
+            },
             "post": {
                 "tags": [
-                    "account"
+                    "clusters/:cluster"
+                ],
+                "description": "create app",
+                "operationId": "AppController.CreateApp server",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "body for user content",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.App"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.App"
+                        }
+                    }
+                }
+            }
+        },
+        "/clusters/{cluster}/apps/{app}": {
+            "delete": {
+                "tags": [
+                    "clusters/:cluster"
+                ],
+                "description": "create namespace",
+                "operationId": "AppController.DeleteApp server",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "body for user content",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.App"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.App"
+                        }
+                    }
+                }
+            }
+        },
+        "/clusters/{cluster}/apps/{app}/redeploy": {
+            "put": {
+                "tags": [
+                    "clusters/:cluster"
+                ],
+                "description": "ReDeploy app",
+                "operationId": "AppController.ReDeployApp server",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "body for user content",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.App"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.App"
+                        }
+                    }
+                }
+            }
+        },
+        "/clusters/{cluster}/apps/{app}/start": {
+            "put": {
+                "tags": [
+                    "clusters/:cluster"
+                ],
+                "description": "start app",
+                "operationId": "AppController.StartApp server",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "body for user content",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.App"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.App"
+                        }
+                    }
+                }
+            }
+        },
+        "/clusters/{cluster}/apps/{app}/stop": {
+            "put": {
+                "tags": [
+                    "clusters/:cluster"
+                ],
+                "description": "stop app",
+                "operationId": "AppController.StopApp server",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "body for user content",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.App"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.App"
+                        }
+                    }
+                }
+            }
+        },
+        "/clusters/{cluster}/services": {
+            "get": {
+                "tags": [
+                    "clusters/:cluster"
+                ],
+                "description": "stop app",
+                "operationId": "ServiceController.ListService server",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "body for user content",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Service"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Service"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "clusters/:cluster"
+                ],
+                "description": "create app",
+                "operationId": "ServiceController.CreateService server",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "body for user content",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Service"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Service"
+                        }
+                    }
+                }
+            }
+        },
+        "/clusters/{cluster}/services/service": {
+            "delete": {
+                "tags": [
+                    "clusters/:cluster"
+                ],
+                "description": "create namespace",
+                "operationId": "ServiceController.DeleteService server",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "body for user content",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Service"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Service"
+                        }
+                    }
+                }
+            }
+        },
+        "/clusters/{cluster}/services/service/stop": {
+            "put": {
+                "tags": [
+                    "clusters/:cluster"
+                ],
+                "description": "stop app",
+                "operationId": "ServiceController.StopService server",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "body for user content",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Service"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Service"
+                        }
+                    }
+                }
+            }
+        },
+        "/clusters/{cluster}/services/{service}/redeploy": {
+            "put": {
+                "tags": [
+                    "clusters/:cluster"
+                ],
+                "description": "ReDeploy app",
+                "operationId": "ServiceController.ReDeployService server",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "body for user content",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Service"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Service"
+                        }
+                    }
+                }
+            }
+        },
+        "/clusters/{cluster}/services/{service}/start": {
+            "put": {
+                "tags": [
+                    "clusters/:cluster"
+                ],
+                "description": "start app",
+                "operationId": "ServiceController.StartService server",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "body for user content",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Service"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Service"
+                        }
+                    }
+                }
+            }
+        },
+        "/clusters/{cluster}/spaces": {
+            "get": {
+                "tags": [
+                    "clusters/:cluster"
+                ],
+                "description": "list namespace",
+                "operationId": "SpaceController.ListSpace server",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "body for user content",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Space"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "clusters/:cluster"
+                ],
+                "description": "create namespace",
+                "operationId": "SpaceController.CreateSpace server",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "body for user content",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Space"
+                        }
+                    }
+                }
+            }
+        },
+        "/clusters/{cluster}/spaces/{space}": {
+            "delete": {
+                "tags": [
+                    "clusters/:cluster"
+                ],
+                "description": "delete namespace",
+                "operationId": "SpaceController.DeleteSpace server",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "body for user content",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Space"
+                        }
+                    }
+                }
+            }
+        },
+        "/teams/teams": {
+            "post": {
+                "tags": [
+                    "teams"
+                ],
+                "description": "list team",
+                "operationId": "TeamController.ListTeam server",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Space"
+                        }
+                    }
+                }
+            }
+        },
+        "/teams/teams/{team}": {
+            "delete": {
+                "tags": [
+                    "teams"
+                ],
+                "description": "delete team",
+                "operationId": "TeamController.DeleteTeam server",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Space"
+                        }
+                    }
+                }
+            }
+        },
+        "/teams/teams/{team}/spaces": {
+            "post": {
+                "tags": [
+                    "teams"
+                ],
+                "description": "add namespace to team",
+                "operationId": "TeamController.AddSpace server",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Space"
+                        }
+                    }
+                }
+            }
+        },
+        "/teams/teams/{team}/users": {
+            "post": {
+                "tags": [
+                    "teams"
+                ],
+                "description": "add users to Team",
+                "operationId": "TeamController.AddUsers server",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Space"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/": {
+            "get": {
+                "tags": [
+                    "users"
+                ],
+                "description": "list all user",
+                "operationId": "UserController.list server",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "body for user content",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "users"
+                ],
+                "description": "create a user",
+                "operationId": "UserController.CreateUser server",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "body for user content",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "users"
+                ],
+                "description": "create a user",
+                "operationId": "UserController.Create server",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "body for user content",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/login": {
+            "post": {
+                "tags": [
+                    "users"
+                ],
+                "description": "Login server by username and password",
+                "operationId": "UserController.Login server",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "body for user content",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/logout": {
+            "delete": {
+                "tags": [
+                    "users"
                 ],
                 "description": "Login server by username and password",
                 "operationId": "UserController.Logout server",
@@ -42,31 +632,238 @@
                     }
                 }
             }
+        },
+        "/users/{user}": {
+            "delete": {
+                "tags": [
+                    "users"
+                ],
+                "description": "delete a user",
+                "operationId": "UserController.Delete server",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "body for user content",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        ".EnvVar": {
+            "type": "object"
+        },
+        ".ServicePort": {
+            "type": "object"
+        },
+        "models.App": {
+            "title": "App",
+            "type": "object",
+            "properties": {
+                "appStatus": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "createAt": {
+                    "type": "string",
+                    "format": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "external": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "intanceCount": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "nameSpace": {
+                    "type": "string"
+                },
+                "serviceCount": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "services": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Service"
+                    }
+                }
+            }
+        },
+        "models.Service": {
+            "title": "Service",
+            "type": "object",
+            "properties": {
+                "appName": {
+                    "type": "string"
+                },
+                "cmds": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "cpu": {
+                    "type": "string"
+                },
+                "envs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/v1.EnvVar"
+                    }
+                },
+                "external": {
+                    "type": "string"
+                },
+                "image": {
+                    "type": "string"
+                },
+                "instanceCount": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "loadbalanceIP": {
+                    "type": "string"
+                },
+                "memory": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "nodeName": {
+                    "type": "string"
+                },
+                "ports": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/v1.ServicePort"
+                    }
+                },
+                "status": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "storage": {
+                    "$ref": "#/definitions/models.Storage"
+                },
+                "type": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "volumes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Volume"
+                    }
+                }
+            }
+        },
+        "models.Space": {
+            "title": "Space",
+            "type": "object",
+            "properties": {
+                "creationTime": {
+                    "type": "string",
+                    "format": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "teamID": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "integer",
+                    "format": "int64"
+                }
+            }
+        },
+        "models.Storage": {
+            "title": "Storage",
+            "type": "object",
+            "properties": {
+                "accessModes": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "mountPath": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "namespace": {
+                    "type": "string"
+                },
+                "serviceName": {
+                    "type": "string"
+                },
+                "size": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "used": {
+                    "type": "boolean"
+                }
+            }
+        },
         "models.Team": {
             "title": "Team",
             "type": "object",
             "properties": {
-                "CreationTime": {
+                "creationTime": {
                     "type": "string",
                     "format": "string"
                 },
-                "CreatorID": {
+                "creatorID": {
                     "type": "integer",
                     "format": "int32"
                 },
-                "Description": {
+                "description": {
                     "type": "string"
                 },
-                "ID": {
+                "id": {
                     "type": "string"
                 },
-                "TeamName": {
+                "name": {
                     "type": "string"
                 },
-                "Users": {
+                "users": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/models.User"
@@ -78,58 +875,80 @@
             "title": "User",
             "type": "object",
             "properties": {
-                "APIToken": {
-                    "type": "string"
-                },
-                "Active": {
-                    "type": "integer",
-                    "format": "int32"
-                },
-                "Company": {
-                    "type": "string"
-                },
-                "CreationTime": {
-                    "type": "string",
-                    "format": "string"
-                },
-                "Displayname": {
-                    "type": "string"
-                },
-                "Email": {
-                    "type": "string"
-                },
-                "ID": {
-                    "type": "integer",
-                    "format": "int32"
-                },
-                "LastLoginTime": {
-                    "type": "string",
-                    "format": "string"
-                },
-                "LoginFrequency": {
-                    "type": "integer",
-                    "format": "int64"
-                },
-                "Name": {
-                    "type": "string"
-                },
-                "Password": {
-                    "type": "string"
-                },
-                "Phone": {
-                    "type": "string"
-                },
-                "Role": {
-                    "type": "integer",
-                    "format": "int32"
-                },
                 "Teams": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/models.Team"
                     }
                 },
-                "Type": {
+                "active": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "apiToken": {
+                    "type": "string"
+                },
+                "company": {
+                    "type": "string"
+                },
+                "createTime": {
+                    "type": "string",
+                    "format": "string"
+                },
+                "displayname": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "lastLoginTime": {
+                    "type": "string",
+                    "format": "string"
+                },
+                "loginFrequency": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "type": {
+                    "type": "integer",
+                    "format": "int64"
+                }
+            }
+        },
+        "models.Volume": {
+            "title": "Volume",
+            "type": "object",
+            "properties": {
+                "configMapKey": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "configMapName": {
+                    "type": "string"
+                },
+                "mountPath": {
+                    "type": "string"
+                },
+                "type": {
                     "type": "integer",
                     "format": "int64"
                 }
@@ -138,8 +957,28 @@
     },
     "tags": [
         {
-            "name": "account",
+            "name": "users",
             "description": "UserController user controller\n"
+        },
+        {
+            "name": "teams",
+            "description": "TeamController team controller\n"
+        },
+        {
+            "name": "clusters/:cluster",
+            "description": "SpaceController space controller\n"
+        },
+        {
+            "name": "clusters/:cluster",
+            "description": "ServiceController the service controller\n"
+        },
+        {
+            "name": "clusters/:cluster",
+            "description": "ConfigController the config controller\n"
+        },
+        {
+            "name": "clusters/:cluster",
+            "description": "ContainerController the container controller\n"
         }
     ]
 }

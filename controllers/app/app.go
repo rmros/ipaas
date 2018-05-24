@@ -17,10 +17,69 @@ limitations under the License.
 package app
 
 import (
-	c "ipaas/controllers"
+	base "ipaas/controllers"
 )
 
-// Controller the app controller
-type Controller struct {
-	c.BaseController
+type AppController struct {
+	base.BaseController
+}
+
+// CreateApp CreateApp
+// @Title CreateApp server
+// @Description create app
+// @Success 201		{object}	models.App
+// @Param	body		body 	models.App		true	"body for user content"
+// @router /apps [post]
+func (c *AppController) CreateApp() {
+
+}
+
+// DeleteApp DeleteApp
+// @Title DeleteApp server
+// @Description create namespace
+// @Success 201		{object}	models.App
+// @Param	body		body 	models.App		true	"body for user content"
+// @router /apps/:app [delete]
+func (c *AppController) DeleteApp() {
+
+}
+
+// StartApp StartApp
+// @Title StartApp server
+// @Description start app
+// @Success 201		{object}	models.App
+// @Param	body		body 	models.App		true	"body for user content"
+// @router /apps/:app/start [put]
+func (c *AppController) StartApp() {
+
+}
+
+// StopApp StopApp
+// @Title StopApp server
+// @Description stop app
+// @Success 201		{object}	models.App
+// @Param	body		body 	models.App		true	"body for user content"
+// @router /apps/:app/stop [put]
+func (c *AppController) StopApp() {
+
+}
+
+// ListApp ListApp
+// @Title ListApp server
+// @Description stop app
+// @Success 201		{object}	models.App
+// @Param	body		body 	models.App		true	"body for user content"
+// @router /apps [get]
+func (c *AppController) ListApp() {
+
+}
+
+// ReDeployApp ReDeployApp
+// @Title ReDeployApp server
+// @Description ReDeploy app
+// @Success 201		{object}	models.App
+// @Param	body		body 	models.App		true	"body for user content"
+// @router /apps/:app/redeploy [put]
+func (c *AppController) ReDeployApp() {
+
 }

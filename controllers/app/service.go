@@ -24,3 +24,73 @@ import (
 type ServiceController struct {
 	base.BaseController
 }
+
+// CreateService CreateService
+// @Title CreateService server
+// @Description create app
+// @Success 201		{object}	models.Service
+// @Param	body		body 	models.Service		true	"body for user content"
+// @router /services [post]
+func (c *ServiceController) CreateService() {
+
+}
+
+// DeleteService DeleteService
+// @Title DeleteService server
+// @Description create namespace
+// @Success 201		{object}	models.Service
+// @Param	body		body 	models.Service		true	"body for user content"
+// @router /services/service [delete]
+func (c *ServiceController) DeleteService() {
+
+}
+
+// StartService StartService
+// @Title StartService server
+// @Description start app
+// @Success 201		{object}	models.Service
+// @Param	body		body 	models.Service		true	"body for user content"
+// @router /services/:service/start [put]
+func (c *ServiceController) StartService() {
+
+}
+
+// ReStartService ReStartService
+// @Title StartService server
+// @Description start app
+// @Success 201		{object}	models.Service
+// @Param	body		body 	models.Service		true	"body for user content"
+// @router /services/:service/start [put]
+func (c *ServiceController) ReStartService() {
+
+}
+
+// StopService StopService
+// @Title StopService server
+// @Description stop app
+// @Success 201		{object}	models.Service
+// @Param	body		body 	models.Service		true	"body for user content"
+// @router /services/service/stop [put]
+func (c *ServiceController) StopService() {
+
+}
+
+// ListService ListService
+// @Title ListService server
+// @Description stop app
+// @Success 201		{object}	models.Service
+// @Param	body		body 	models.Service		true	"body for user content"
+// @router /services [get]
+func (c *ServiceController) ListService() {
+
+}
+
+// ReDeployService ReDeployService
+// @Title ReDeployService server
+// @Description ReDeploy app
+// @Success 201		{object}	models.Service
+// @Param	body		body 	models.Service		true	"body for user content"
+// @router /services/:service/redeploy [put]
+func (c *ServiceController) ReDeployService() {
+
+}

@@ -1,0 +1,9 @@
+\#*
+*~
+*.swp
+*.exe
+.idea
+/lastupdate.tmp
+swagger/swagger.yml
+.DS_Store
+ipaas

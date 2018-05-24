@@ -9,17 +9,44 @@ package routers
 
 import (
 	"ipaas/controllers/account"
+	"ipaas/controllers/app"
 
 	"github.com/astaxie/beego"
 )
 
 func init() {
 	ns := beego.NewNamespace("/api/v1",
-		beego.NSNamespace("/account",
+		beego.NSNamespace("/users",
 			beego.NSInclude(
 				&account.UserController{},
 			),
 		),
+		beego.NSNamespace("/teams",
+			beego.NSInclude(
+				&account.TeamController{},
+			),
+		),
+		beego.NSNamespace("/clusters/:cluster",
+			beego.NSInclude(
+				&account.SpaceController{},
+			),
+			beego.NSInclude(
+				&app.AppController{},
+			),
+			beego.NSInclude(
+				&app.ServiceController{},
+			),
+			beego.NSInclude(
+				&app.StorageController{},
+			),
+			beego.NSInclude(
+				&app.ConfigController{},
+			),
+			beego.NSInclude(
+				&app.ContainerController{},
+			),
+		),
 	)
+
 	beego.AddNamespace(ns)
 }

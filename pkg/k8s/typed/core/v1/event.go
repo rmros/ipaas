@@ -15,3 +15,36 @@ limitations under the License.
 */
 
 package v1
+
+import (
+	"k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/fields"
+	"k8s.io/apimachinery/pkg/labels"
+	"k8s.io/client-go/kubernetes"
+)
+
+//EventInterface has methods to work with Event resources.
+type EventInterface interface {
+	GetEvents(namespace string) ([]v1.Event, error)
+}
+
+//events implements HPAInterface.
+type events struct {
+	*kubernetes.Clientset
+}
+
+func Events(client *kubernetes.Clientset) EventInterface {
+	return &events{Clientset: client}
+}
+
+func (client *events) GetEvents(namespace string) ([]v1.Event, error) {
+	list, err := client.CoreV1().Events(namespace).List(metav1.ListOptions{
+		LabelSelector: labels.Everything().String(),
+		FieldSelector: fields.Everything().String(),
+	})
+	if err != nil {
+		return []v1.Event{}, err
+	}
+	return list.Items, nil
+}

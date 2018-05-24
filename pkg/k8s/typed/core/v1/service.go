@@ -39,8 +39,8 @@ type services struct {
 	*kubernetes.Clientset
 }
 
-//NewServices return a services.
-func NewServices(client *kubernetes.Clientset) ServiceInterface {
+//Services return a service.
+func Services(client *kubernetes.Clientset) ServiceInterface {
 	return &services{Clientset: client}
 }
 

@@ -21,6 +21,7 @@ package account
 
 import (
 	base "ipaas/controllers"
+	"ipaas/pkg/tools/validate"
 )
 
 // SpaceController space controller
@@ -28,38 +29,53 @@ type SpaceController struct {
 	base.BaseController
 }
 
+// CreateSpace CreateSpace
+// @Title CreateSpace server
+// @Description create namespace
+// @Success 201		{object}	models.Space
+// @Param	body		body 	models.User		true	"body for user content"
+// @router /spaces [post]
 func (c *SpaceController) CreateSpace() {
-	// space, err := validate.ValidateSpace(c.Ctx.Request)
-	// if err != nil {
-	// 	c.Response400(err)
-	// 	return
-	// }
-	// ns := space.TOK8sNamespace()
-	// createnamespace := func() {
-	// 	for clusterID, client := range client.GetClientsets() {
-	// 		glog.Info(clusterID)
-	// 		_, err := v1.Namespaces(client.Clientset).Create(ns)
-	// 		if err != nil {
-	// 			glog.Errorf("when add user,create k8s namespace [%v] in cluster [%v] err: %v", ns.Name, clusterID, err)
-	// 		}
-	// 	}
-	// }
-	// go createnamespace()
-
+	space, err := validate.ValidateSpace(c.Ctx.Request)
+	if err != nil {
+		c.Response400(err)
+		return
+	}
+	ns := space.TOK8sNamespace()
+	if err = createNamespace(c.GetString(":cluster"), ns); err != nil {
+		c.Response500(err)
+	}
+	c.Response(201, "ok")
 }
 
+// DeleteSpace DeleteSpace
+// @Title DeleteSpace server
+// @Description delete namespace
+// @Success 200		{object}	models.Space
+// @Param	body		body 	models.User		true	"body for user content"
+// @router /spaces/:space [delete]
 func (c *SpaceController) DeleteSpace() {
-	// name := c.GetString(":space")
-	// deletenamespace := func() {
-	// 	for clusterID, client := range client.GetClientsets() {
-	// 		if err := v1.Namespaces(client.Clientset).Delete(name, &metav1.DeleteOptions{}); err != nil {
-	// 			glog.Errorf("delete k8s namespace [%v] in cluster [%v] err: %v", name, clusterID, err)
-	// 		}
-	// 	}
-	// }
-	// go deletenamespace()
+	name := c.GetString(":space")
+	cluster := c.GetString(":cluster")
+	if err := deleteNamespace(cluster, name, ""); err != nil {
+		c.Response500(err)
+		return
+	}
+	c.Response(200, "ok")
 }
 
-func (c *SpaceController) List() {
-
+// ListSpace ListSpace
+// @Title ListSpace server
+// @Description list namespace
+// @Success 200		{object}	models.Space
+// @Param	body		body 	models.User		true	"body for user content"
+// @router /spaces [get]
+func (c *SpaceController) ListSpace() {
+	cluster := c.GetString(":cluster")
+	namespaces, err := listNamespace(cluster)
+	if err != nil {
+		c.Response500(err)
+		return
+	}
+	c.Response(200, namespaces)
 }

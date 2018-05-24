@@ -17,7 +17,7 @@ limitations under the License.
 /*
 Package account include user、team、team model's basic operation of database
 */
-package account
+package models
 
 import "ipaas/pkg/tools/storage/mysql"
 
