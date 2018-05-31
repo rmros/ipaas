@@ -337,11 +337,7 @@ type Container struct {
 	CreateAt  time.Time `json:"createAt"`
 }
 
-// TableName return Container model's  table name
-func (container *Container) TableName() string {
-	return "containers"
-}
-
+// Node node info
 type Node struct {
 	HostName          string            `json:"hostName"`
 	Internal          string            `json:"internal"`

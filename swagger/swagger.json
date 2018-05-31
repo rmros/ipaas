@@ -305,6 +305,26 @@
                 }
             }
         },
+        "/clusters/{cluster}/namespaces/{namespace}/containers/{name}/metrics": {
+            "get": {
+                "tags": [
+                    "clusters/:cluster/namespaces/:namespace/containers"
+                ],
+                "description": "query pod metric",
+                "operationId": "ContainerController.GetMetric server",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Container"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/clusters/{cluster}/namespaces/{namespace}/services/": {
             "get": {
                 "tags": [
@@ -384,14 +404,11 @@
                 "tags": [
                     "clusters/:cluster/namespaces/:namespace/services"
                 ],
-                "description": "list service events",
-                "operationId": "ServiceController.ListServiceMetrics server",
+                "description": "Get service Metric",
+                "operationId": "ServiceController.GetMetric server",
                 "responses": {
                     "200": {
-                        "description": "",
-                        "schema": {
-                            "$ref": "#/definitions/.map[string]interface{}"
-                        }
+                        "description": ""
                     }
                 }
             }
@@ -493,7 +510,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/.Node"
+                                "$ref": "#/definitions/models.Node"
                             }
                         }
                     }
@@ -505,7 +522,7 @@
                 "tags": [
                     "clusters/:cluster/nodes"
                 ],
-                "description": "get node",
+                "description": "get node detail",
                 "operationId": "NodeController.GetNode server",
                 "responses": {
                     "200": {
@@ -846,9 +863,6 @@
         ".Model": {
             "type": "object"
         },
-        ".Node": {
-            "type": "object"
-        },
         ".NodeSystemInfo": {
             "type": "object"
         },
@@ -856,9 +870,6 @@
             "type": "object"
         },
         ".Time": {
-            "type": "object"
-        },
-        ".map[string]interface{}": {
             "type": "object"
         },
         ".map[string]string": {

@@ -86,3 +86,21 @@ func (c *ContainerController) ReCreateContainer() {
 	}
 	c.Response(200, "ok")
 }
+
+// GetMetric query pod metric
+// @Title GetMetric server
+// @Description  query pod metric
+// @Success 200		{object}	[]models.Container
+// @router /:name/metrics [get]
+func (c *ContainerController) GetMetric() {
+	namespace := c.GetString(":namespace")
+	podName := c.GetString(":name")
+	metricsName := c.GetString("type")
+	metrics, err := base.GetPodMetrics(namespace, podName, metricsName)
+	if err != nil {
+		glog.Errorf("get container %v's metric %v err: %v", podName, metricsName)
+		c.Response500(err)
+		return
+	}
+	c.Response(200, metrics)
+}

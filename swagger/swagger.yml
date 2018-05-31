@@ -200,6 +200,19 @@ paths:
       responses:
         "200":
           description: ""
+  /clusters/{cluster}/namespaces/{namespace}/containers/{name}/metrics:
+    get:
+      tags:
+      - clusters/:cluster/namespaces/:namespace/containers
+      description: query pod metric
+      operationId: ContainerController.GetMetric server
+      responses:
+        "200":
+          description: ""
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/models.Container'
   /clusters/{cluster}/namespaces/{namespace}/services/:
     get:
       tags:
@@ -261,13 +274,11 @@ paths:
     get:
       tags:
       - clusters/:cluster/namespaces/:namespace/services
-      description: list service events
-      operationId: ServiceController.ListServiceMetrics server
+      description: Get service Metric
+      operationId: ServiceController.GetMetric server
       responses:
         "200":
           description: ""
-          schema:
-            $ref: '#/definitions/.map[string]interface{}'
   /clusters/{cluster}/namespaces/{namespace}/storages/:
     get:
       tags:
@@ -326,12 +337,12 @@ paths:
           schema:
             type: array
             items:
-              $ref: '#/definitions/.Node'
+              $ref: '#/definitions/models.Node'
   /clusters/{cluster}/nodes/{name}:
     get:
       tags:
       - clusters/:cluster/nodes
-      description: get node
+      description: get node detail
       operationId: NodeController.GetNode server
       responses:
         "200":
@@ -552,15 +563,11 @@ definitions:
     type: object
   .Model:
     type: object
-  .Node:
-    type: object
   .NodeSystemInfo:
     type: object
   .ServicePort:
     type: object
   .Time:
-    type: object
-  .map[string]interface{}:
     type: object
   .map[string]string:
     type: object

@@ -137,14 +137,10 @@ func (c *NodeController) ListContainer() {
 	c.Response(200, containers)
 }
 
-// func (c *NodeController) GetMetric() {
-// 	clusterID := c.GetString(":cluster")
-// }
-
 // ListNode list node
 // @Title ListNode server
 // @Description list node
-// @Success 200		{object}	[]*models.Node
+// @Success 200		{object}	[]models.Node
 // @router / [get]
 func (c *NodeController) ListNode() {
 	clusterID := c.GetString(":cluster")
@@ -165,7 +161,7 @@ func (c *NodeController) ListNode() {
 
 // GetNode get node
 // @Title GetNode server
-// @Description get node
+// @Description get node detail
 // @Success 200		{object}	models.Node
 // @router /:name [get]
 func (c *NodeController) GetNode() {
@@ -178,4 +174,8 @@ func (c *NodeController) GetNode() {
 	}
 	node := base.TranslateK8sNode(clusterID, *knode)
 	c.Response(200, node)
+}
+
+func (c NodeController) GetMetric() {
+
 }

@@ -20,12 +20,14 @@ import (
 	"fmt"
 
 	base "ipaas/controllers"
+	"ipaas/models"
 	"ipaas/pkg/tools/log"
 	"ipaas/pkg/tools/parse"
 	"ipaas/pkg/tools/validate"
 
 	"k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/golang/glog"
 )
@@ -109,22 +111,6 @@ func (c *ServiceController) ListServiceEvents() {
 		return
 	}
 	c.Response(200, events)
-}
-
-// ListServiceMetrics ListServiceMetrics
-// @Title ListServiceMetrics server
-// @Description list service events
-// @Success 200		{object}	map[string]interface{}
-// @router /:service/metrics [get]
-func (c *ServiceController) ListServiceMetrics() {
-	// clusterID, namespace, name := c.GetString(":cluster"), c.GetString(":namespace"), c.GetString(":service")
-	// events, err := base.GetServiceEvents(name, namespace, clusterID)
-	// if err != nil {
-	// 	glog.Errorf("list service %v's envets err: %v", name, err)
-	// 	c.Response500(fmt.Errorf("list service %v's envets err: %v", name, err))
-	// 	return
-	// }
-	// c.Response(200, events)
 }
 
 // OperatorService OperatorService
@@ -283,4 +269,35 @@ func (c *ServiceController) addServiceEnvs() {
 		return
 	}
 	c.Response(200, map[string]interface{}{"deploy": result})
+}
+
+// GetMetric Get service Metric
+// @Title GetMetric server
+// @Description Get service Metric
+// @Success 200
+// @router /:service/metrics [get]
+func (c *ServiceController) GetMetric() {
+	clusterID := c.GetString(":cluster")
+	namespace := c.GetString(":namespace")
+	serviceName := c.GetString(":service")
+	metricsName := c.GetString("type")
+	glog.Info(fmt.Sprintf("%v=%v", models.MinipaasServiceName, serviceName))
+	listOptions := metav1.ListOptions{LabelSelector: fmt.Sprintf("%v=%v", models.MinipaasServiceName, serviceName)}
+	podList, err := base.ListPod(namespace, clusterID, listOptions)
+	if err != nil {
+		glog.Errorf("when get service %v's metric, get service's pod err: %v", serviceName, err)
+		c.Response500(fmt.Errorf("when get service %v's metric, get service's pod err: %v", serviceName, err))
+		return
+	}
+	result := map[string]interface{}{}
+	for _, pod := range podList {
+		metrics, err := base.GetPodMetrics(namespace, pod.Name, metricsName)
+		if err != nil {
+			glog.Errorf("get container %v's metric %v err: %v", pod.Name, metricsName)
+			c.Response500(err)
+			return
+		}
+		result[pod.Name] = metrics
+	}
+	c.Response(200, result)
 }

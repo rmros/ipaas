@@ -141,9 +141,9 @@ func (client *pods) GetPodLogs(name, namespace string, logOptions *v1.PodLogOpti
 
 //GetPodMetrics get pod metric
 func (client *pods) GetPodMetrics(namespace, podName, metric_name string) (map[string]interface{}, error) {
-	path := fmt.Sprintf("%s/api/v1/model/namespaces/%s/pods/%s/metrics/%s", configz.GetString("apiserver", "heapsterEndpoint", "127.0.0.1:30003"), namespace, podName, metric_name)
+	path := fmt.Sprintf("%s/api/v1/model/namespaces/%s/pods/%s/metrics/%s", configz.GetString("kubernetes", "heapsterEndpoint", "127.0.0.1:30003"), namespace, podName, metric_name)
 	log.Info(path)
-	heapsterHost := configz.GetString("apiserver", "heapsterEndpoint", "http://127.0.0.1:30003")
+	heapsterHost := configz.GetString("kubernetes", "heapsterEndpoint", "http://127.0.0.1:30003")
 	log.Info("Creating remote Heapster client for %s", heapsterHost)
 	req, err := http.NewRequest("GET", path, nil)
 	if err != nil {

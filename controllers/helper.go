@@ -1,7 +1,10 @@
 package controllers
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"net/http"
 	"strings"
 
 	"github.com/golang/glog"
@@ -9,6 +12,7 @@ import (
 	"ipaas/models"
 	k8s "ipaas/pkg/k8s/client"
 	"ipaas/pkg/k8s/util/node"
+	"ipaas/pkg/tools/configz"
 	"ipaas/pkg/tools/log"
 	"ipaas/pkg/tools/parse"
 
@@ -661,6 +665,54 @@ func DeletePod(name, namespace, clusterID string) error {
 		return fmt.Errorf("the k8s cluster %q has no client exist", clusterID)
 	}
 	return fake.Pods().DeletePod(name, namespace)
+}
+
+/*
+**metricName参考：**
+	[
+	"network/tx",
+	"network/tx_errors_rate",
+	"memory/working_set",
+	"network/tx_errors",
+	"cpu/limit",
+	"memory/major_page_faults",
+	"memory/page_faults_rate",
+	"cpu/request",
+	"network/rx_rate",
+	"cpu/usage_rate",
+	"memory/limit",
+	"memory/usage",
+	"memory/cache",
+	"network/rx_errors",
+	"network/rx_errors_rate",
+	"network/tx_rate",
+	"memory/major_page_faults_rate",
+	"cpu/usage",
+	"network/rx",
+	"memory/rss",
+	"memory/page_faults",
+	"memory/request",
+	"uptime"
+	]
+*/
+// GetPodMetrics get pod metric
+func GetPodMetrics(namespace, podName, metricName string) (map[string]interface{}, error) {
+	path := fmt.Sprintf("%s/api/v1/model/namespaces/%s/pods/%s/metrics/%s", configz.GetString("kubernetes", "heapsterEndpoint", "127.0.0.1:30003"), namespace, podName, metricName)
+	log.Info(path)
+	heapsterHost := configz.GetString("kubernetes", "heapsterEndpoint", "http://127.0.0.1:30003")
+	log.Info("Creating remote Heapster client for %s", heapsterHost)
+	req, err := http.NewRequest("GET", path, nil)
+	if err != nil {
+		return nil, err
+	}
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	data, err := ioutil.ReadAll(res.Body)
+	v := map[string]interface{}{}
+	json.Unmarshal(data, &v)
+	return v, nil
 }
 
 // GetNode get node

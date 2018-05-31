@@ -95,6 +95,14 @@ func init() {
 			MethodParams: param.Make(),
 			Params: nil})
 
+	beego.GlobalControllerRouter["ipaas/controllers/app:ContainerController"] = append(beego.GlobalControllerRouter["ipaas/controllers/app:ContainerController"],
+		beego.ControllerComments{
+			Method: "GetMetric",
+			Router: `/:name/metrics`,
+			AllowHTTPMethods: []string{"get"},
+			MethodParams: param.Make(),
+			Params: nil})
+
 	beego.GlobalControllerRouter["ipaas/controllers/app:ServiceController"] = append(beego.GlobalControllerRouter["ipaas/controllers/app:ServiceController"],
 		beego.ControllerComments{
 			Method: "CreateService",
@@ -137,7 +145,7 @@ func init() {
 
 	beego.GlobalControllerRouter["ipaas/controllers/app:ServiceController"] = append(beego.GlobalControllerRouter["ipaas/controllers/app:ServiceController"],
 		beego.ControllerComments{
-			Method: "ListServiceMetrics",
+			Method: "GetMetric",
 			Router: `/:service/metrics`,
 			AllowHTTPMethods: []string{"get"},
 			MethodParams: param.Make(),
