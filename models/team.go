@@ -1,5 +1,5 @@
 /*
-Copyright [yyyy] [name of copyright owner]
+Copyright [huangjia] [name of copyright owner]
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,7 +19,9 @@ Package account include user、team、team model's basic operation of database
 */
 package models
 
-import "ipaas/pkg/tools/storage/mysql"
+import (
+	"ipaas/pkg/tools/storage/mysql"
+)
 
 // Create insert team to db
 func (team *Team) Create() error {
@@ -32,10 +34,10 @@ func (team *Team) Get() error {
 }
 
 // GetTeamUsers get team's users by teamID
-func (team *Team) GetTeamUsers() ([]*Team, error) {
-	var teams []*Team
-	err := mysql.GetDB().Where("team_id=?", team.ID).Related(&teams).Error
-	return teams, err
+func (team *Team) GetTeamUsers() ([]*User, error) {
+	var users []*User
+	err := mysql.GetDB().Model(team).Related(&users).Error
+	return users, err
 }
 
 // Update update team
@@ -53,4 +55,8 @@ func (team *Team) ListAll() ([]*Team, error) {
 	var teams []*Team
 	err := mysql.GetDB().Find(&teams).Error
 	return teams, err
+}
+
+func (team *Team) Exsit() bool {
+	return !mysql.GetDB().Model(team).Where("name=?", team.Name).RecordNotFound()
 }

@@ -1,5 +1,5 @@
 /*
-Copyright [yyyy] [name of copyright owner]
+Copyright [huangjia] [name of copyright owner]
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -53,5 +53,10 @@ func StringToInt32Pointer(input string) *int32 {
 	output := new(int32)
 	tmp, _ := strconv.Atoi(input)
 	*output = int32(tmp)
+	return output
+}
+
+func StringToInt(input string) int {
+	output, _ := strconv.Atoi(input)
 	return output
 }

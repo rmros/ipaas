@@ -116,3 +116,15 @@ func ValidateStorage(req *http.Request) (*models.Storage, error) {
 	err := json.NewDecoder(req.Body).Decode(storage)
 	return storage, err
 }
+
+func Array(req *http.Request) ([]string, error) {
+	inputs := []string{}
+	err := json.NewDecoder(req.Body).Decode(&inputs)
+	return inputs, err
+}
+
+func Map(req *http.Request) (map[string]string, error) {
+	inputs := map[string]string{}
+	err := json.NewDecoder(req.Body).Decode(&inputs)
+	return inputs, err
+}

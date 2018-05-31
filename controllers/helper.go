@@ -4,8 +4,11 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/golang/glog"
+
 	"ipaas/models"
 	k8s "ipaas/pkg/k8s/client"
+	"ipaas/pkg/k8s/util/node"
 	"ipaas/pkg/tools/log"
 	"ipaas/pkg/tools/parse"
 
@@ -14,6 +17,7 @@ import (
 	"k8s.io/api/core/v1"
 	storagev1 "k8s.io/api/storage/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -81,6 +85,9 @@ DELETE_DEPLOYMENT:
 // DeleteServiceByAppName delete service of paas by app name
 func DeleteServiceByAppName(name, namespace, clusterID string) error {
 	fake := k8s.GetClientset(clusterID)
+	if fake == nil {
+		return fmt.Errorf("the k8s cluster %q has no client exist", clusterID)
+	}
 	labels := fmt.Sprintf("%v=%v", models.MinipaasAppName, name)
 	if err := fake.DeploymentsExtensions().DeleteDeploymentByLabels(labels, namespace); err != nil {
 		return err
@@ -94,14 +101,17 @@ func DeleteServiceByAppName(name, namespace, clusterID string) error {
 // ListServiceByAppName list service of paas by app name
 func ListServiceByAppName(name, namespace, clusterID string) ([]v1.Service, []v1beta1.Deployment, error) {
 	fake := k8s.GetClientset(clusterID)
+	if fake == nil {
+		return nil, nil, fmt.Errorf("the k8s cluster %q has no client exist", clusterID)
+	}
 	labels := fmt.Sprintf("%v=%v", models.MinipaasAppName, name)
 	services, err := fake.Services().ListService(labels, namespace)
 	if err != nil {
-		return []v1.Service{}, []v1beta1.Deployment{}, err
+		return nil, nil, err
 	}
 	deployments, err := fake.DeploymentsExtensions().ListDeployment(labels, namespace)
 	if err != nil {
-		return []v1.Service{}, []v1beta1.Deployment{}, err
+		return nil, nil, err
 	}
 	return services, deployments, nil
 }
@@ -109,6 +119,10 @@ func ListServiceByAppName(name, namespace, clusterID string) ([]v1.Service, []v1
 // ServiceExist assert service of paas exsit or not
 func ServiceExist(name, namespace, clusterID string) (*v1.Service, *v1beta1.Deployment, bool) {
 	fake := k8s.GetClientset(clusterID)
+	if fake == nil {
+		glog.Infof("the k8s cluster %q has no client exist", clusterID)
+		return nil, nil, false
+	}
 	svc, err := fake.CoreV1().Services(namespace).Get(name, metav1.GetOptions{})
 	if err != nil {
 		return nil, nil, false
@@ -122,6 +136,9 @@ func ServiceExist(name, namespace, clusterID string) (*v1.Service, *v1beta1.Depl
 
 func stopService(svc *v1.Service, deploy *v1beta1.Deployment, clusterID string) error {
 	fake := k8s.GetClientset(clusterID)
+	if fake == nil {
+		return fmt.Errorf("the k8s cluster %q has no client exist", clusterID)
+	}
 	deploy.Spec.Replicas = parse.IntToInt32Pointer(0)
 	if _, err := fake.DeploymentsExtensions().UpdateDeployment(deploy); err != nil {
 		return err
@@ -140,20 +157,23 @@ func startService(svc *v1.Service, deploy *v1beta1.Deployment, clusterID string)
 
 func redeployService(svc *v1.Service, deploy *v1beta1.Deployment, clusterID string) error {
 	fake := k8s.GetClientset(clusterID)
+	if fake == nil {
+		return fmt.Errorf("the k8s cluster %q has no client exist", clusterID)
+	}
 	pods, err := fake.Pods().ListPodByDeploymentName(deploy.Name, deploy.Namespace)
 	if err != nil {
 		return nil
 	}
 	for i := range pods {
-		if err := fake.Pods().DeletePod(pods[i]); err != nil {
+		if err := fake.Pods().DeletePod(pods[i].Name, pods[i].Namespace); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-// StartOrStopOrRedployService start or stop or redeploy service of paas
-func StartOrStopOrRedployService(svc *v1.Service, deploy *v1beta1.Deployment, verb, clusterID string) error {
+// OperatorService start or stop or redeploy service of paas
+func OperatorService(svc *v1.Service, deploy *v1beta1.Deployment, verb, clusterID string) error {
 	if verb == "stop" {
 		if err := stopService(svc, deploy, clusterID); err != nil {
 			return fmt.Errorf("stop service %v err: %v", deploy.Name, err)
@@ -172,10 +192,10 @@ func StartOrStopOrRedployService(svc *v1.Service, deploy *v1beta1.Deployment, ve
 	return nil
 }
 
-// StartOrStopOrRedployApp  start or stop or redeploy app of paas
-func StartOrStopOrRedployApp(svcs []v1.Service, deploys []v1beta1.Deployment, verb, clusterID string) (errs []error) {
+// OperatorServices  start or stop or redeploy app of paas
+func OperatorServices(svcs []v1.Service, deploys []v1beta1.Deployment, verb, clusterID string) (errs []error) {
 	for _, deploy := range deploys {
-		if err := StartOrStopOrRedployService(nil, &deploy, verb, clusterID); err != nil {
+		if err := OperatorService(nil, &deploy, verb, clusterID); err != nil {
 			errs = append(errs, fmt.Errorf("%v service %v err: %v", verb, deploy.Name, err))
 			continue
 		}
@@ -186,13 +206,16 @@ func StartOrStopOrRedployApp(svcs []v1.Service, deploys []v1beta1.Deployment, ve
 // ListService list service of paas
 func ListService(labels, namespace, clusterID string) ([]v1.Service, []v1beta1.Deployment, error) {
 	fake := k8s.GetClientset(clusterID)
+	if fake == nil {
+		return nil, nil, fmt.Errorf("the k8s cluster %q has no client exist", clusterID)
+	}
 	services, err := fake.Services().ListService(labels, namespace)
 	if err != nil {
-		return []v1.Service{}, []v1beta1.Deployment{}, err
+		return nil, nil, err
 	}
 	deployments, err := fake.DeploymentsExtensions().ListDeployment("", namespace)
 	if err != nil {
-		return []v1.Service{}, []v1beta1.Deployment{}, err
+		return nil, nil, err
 	}
 	return services, deployments, nil
 }
@@ -200,33 +223,48 @@ func ListService(labels, namespace, clusterID string) ([]v1.Service, []v1beta1.D
 // CreateConfigMap create configMap of k8s
 func CreateConfigMap(clusterID string, configMap *v1.ConfigMap) (*v1.ConfigMap, error) {
 	fake := k8s.GetClientset(clusterID)
+	if fake == nil {
+		return nil, fmt.Errorf("the k8s cluster %q has no client exist", clusterID)
+	}
 	return fake.ConfigMaps().CreateConfigMap(configMap)
 }
 
 // GetConfigMapByName get configMap by name and namespace
 func GetConfigMapByName(name, namespace, clusterID string) (*v1.ConfigMap, error) {
 	fake := k8s.GetClientset(clusterID)
+	if fake == nil {
+		return nil, fmt.Errorf("the k8s cluster %q has no client exist", clusterID)
+	}
 	return fake.ConfigMaps().GetConfigMap(name, namespace)
 }
 
 // UpdateConfigMap update configMap of k8s
 func UpdateConfigMap(clusterID string, configMap *v1.ConfigMap) (*v1.ConfigMap, error) {
 	fake := k8s.GetClientset(clusterID)
+	if fake == nil {
+		return nil, fmt.Errorf("the k8s cluster %q has no client exist", clusterID)
+	}
 	return fake.ConfigMaps().UpdateConfigMap(configMap)
 }
 
 // DeleteConfigMap delete configMap of k8s
 func DeleteConfigMap(name, namespace, clusterID string) error {
 	fake := k8s.GetClientset(clusterID)
+	if fake == nil {
+		return fmt.Errorf("the k8s cluster %q has no client exist", clusterID)
+	}
 	return fake.ConfigMaps().DeleteConfigMap(name, namespace)
 }
 
 // ListConfigMap list configMap of k8s
 func ListConfigMap(namespace, clusterID string) ([]v1.ConfigMap, error) {
 	fake := k8s.GetClientset(clusterID)
+	if fake == nil {
+		return nil, fmt.Errorf("the k8s cluster %q has no client exist", clusterID)
+	}
 	configMapList, err := fake.ConfigMaps().ListConfigMap(namespace)
 	if err != nil {
-		return []v1.ConfigMap{}, err
+		return nil, err
 	}
 	return configMapList.Items, nil
 }
@@ -234,9 +272,12 @@ func ListConfigMap(namespace, clusterID string) ([]v1.ConfigMap, error) {
 // GetPodEvents get pod events
 func GetPodEvents(name, namespace, clusterID string) ([]models.Event, error) {
 	fake := k8s.GetClientset(clusterID)
+	if fake == nil {
+		return nil, fmt.Errorf("the k8s cluster %q has no client exist", clusterID)
+	}
 	events, err := fake.Events().GetEvents(namespace)
 	if err != nil {
-		return []models.Event{}, err
+		return nil, err
 	}
 	var list []models.Event
 	for _, event := range events {
@@ -258,21 +299,30 @@ func GetPodEvents(name, namespace, clusterID string) ([]models.Event, error) {
 // GetPodLogs get pod logs
 func GetPodLogs(name, namespace, clusterID string, logOptions *v1.PodLogOptions) (string, error) {
 	fake := k8s.GetClientset(clusterID)
+	if fake == nil {
+		return "", fmt.Errorf("the k8s cluster %q has no client exist", clusterID)
+	}
 	return fake.Pods().GetPodLogs(name, namespace, logOptions)
 }
 
 // GetPod get pod of k8s
 func GetPod(name, namespace, clusterID string) (*v1.Pod, error) {
 	fake := k8s.GetClientset(clusterID)
+	if fake == nil {
+		return nil, fmt.Errorf("the k8s cluster %q has no client exist", clusterID)
+	}
 	return fake.Pods().GetPod(name, namespace)
 }
 
 //GetServiceEvents get service event
 func GetServiceEvents(name, namespace, clusterID string) ([]models.Event, error) {
 	fake := k8s.GetClientset(clusterID)
+	if fake == nil {
+		return nil, fmt.Errorf("the k8s cluster %q has no client exist", clusterID)
+	}
 	events, err := fake.Events().GetEvents(namespace)
 	if err != nil {
-		return []models.Event{}, err
+		return nil, err
 	}
 	var list []models.Event
 	for _, event := range events {
@@ -294,7 +344,10 @@ func GetServiceEvents(name, namespace, clusterID string) ([]models.Event, error)
 // GetPods get pods of k8s
 func GetPods(namespace, clusterID string) ([]v1.Pod, error) {
 	fake := k8s.GetClientset(clusterID)
-	pods, err := fake.Pods().ListPods(namespace)
+	if fake == nil {
+		return nil, fmt.Errorf("the k8s cluster %q has no client exist", clusterID)
+	}
+	pods, err := fake.Pods().ListPods(namespace, metav1.ListOptions{})
 	if err != nil {
 		return []v1.Pod{}, err
 	}
@@ -304,48 +357,72 @@ func GetPods(namespace, clusterID string) ([]v1.Pod, error) {
 // CreateHPA create hpa of k8s
 func CreateHPA(clusterID string, hpa *autoscalingv1.HorizontalPodAutoscaler) (*autoscalingv1.HorizontalPodAutoscaler, error) {
 	fake := k8s.GetClientset(clusterID)
+	if fake == nil {
+		return nil, fmt.Errorf("the k8s cluster %q has no client exist", clusterID)
+	}
 	return fake.HPAs().CreateHPA(hpa)
 }
 
 // UpdateHPA update hpa of k8s
 func UpdateHPA(clusterID string, hpa *autoscalingv1.HorizontalPodAutoscaler) (*autoscalingv1.HorizontalPodAutoscaler, error) {
 	fake := k8s.GetClientset(clusterID)
+	if fake == nil {
+		return nil, fmt.Errorf("the k8s cluster %q has no client exist", clusterID)
+	}
 	return fake.HPAs().UpdateHPA(hpa)
 }
 
 // DeleteHPA delete hpa of k8s
 func DeleteHPA(name, namespace, clusterID string) error {
 	fake := k8s.GetClientset(clusterID)
+	if fake == nil {
+		return fmt.Errorf("the k8s cluster %q has no client exist", clusterID)
+	}
 	return fake.HPAs().DeleteHPA(name, namespace)
 }
 
 // GetHPA get hpa of k8s
 func GetHPA(name, namespace, clusterID string) (*autoscalingv1.HorizontalPodAutoscaler, error) {
 	fake := k8s.GetClientset(clusterID)
+	if fake == nil {
+		return nil, fmt.Errorf("the k8s cluster %q has no client exist", clusterID)
+	}
 	return fake.HPAs().GetHPA(name, namespace)
 }
 
 // GetDeployment get deployment of k8s
 func GetDeployment(name, namespace, clusterID string) (*v1beta1.Deployment, error) {
 	fake := k8s.GetClientset(clusterID)
+	if fake == nil {
+		return nil, fmt.Errorf("the k8s cluster %q has no client exist", clusterID)
+	}
 	return fake.DeploymentsExtensions().GetDeployment(name, namespace)
 }
 
 // GetK8SService get k8s service
 func GetK8SService(name, namespace, clusterID string) (*v1.Service, error) {
 	fake := k8s.GetClientset(clusterID)
+	if fake == nil {
+		return nil, fmt.Errorf("the k8s cluster %q has no client exist", clusterID)
+	}
 	return fake.Services().GetService(name, namespace)
 }
 
 // UpdateDeployment update deployment
 func UpdateDeployment(deploy *v1beta1.Deployment, clusterID string) (*v1beta1.Deployment, error) {
 	fake := k8s.GetClientset(clusterID)
+	if fake == nil {
+		return nil, fmt.Errorf("the k8s cluster %q has no client exist", clusterID)
+	}
 	return fake.DeploymentsExtensions().UpdateDeployment(deploy)
 }
 
 // UpdateService update service of paas
 func UpdateService(svc *v1.Service, deploy *v1beta1.Deployment, clusterID string) (*v1.Service, *v1beta1.Deployment, error) {
 	fake := k8s.GetClientset(clusterID)
+	if fake == nil {
+		return nil, nil, fmt.Errorf("the k8s cluster %q has no client exist", clusterID)
+	}
 UPDATE_DEPLOYMENT:
 	deployment, err := fake.DeploymentsExtensions().UpdateDeployment(deploy)
 	if err != nil {
@@ -368,19 +445,28 @@ UPDATE_SERVICE:
 // CreateStorageClass create storageclass
 func CreateStorageClass(storageclass *storagev1.StorageClass, clusterID string) (*storagev1.StorageClass, error) {
 	fake := k8s.GetClientset(clusterID)
+	if fake == nil {
+		return nil, fmt.Errorf("the k8s cluster %q has no client exist", clusterID)
+	}
 	return fake.StorageClasses().CreateStorageClass(storageclass)
 }
 
 // DeleteStorageClass delete storageclass by name
 func DeleteStorageClass(name, clusterID string) error {
 	fake := k8s.GetClientset(clusterID)
+	if fake == nil {
+		return fmt.Errorf("the k8s cluster %q has no client exist", clusterID)
+	}
 	return fake.StorageClasses().DeleteStorageClass(name)
 }
 
 // DeploySatefulService deploy stateful service
 func DeploySatefulService(service, headlessService *v1.Service, statefulset *v1beta1.StatefulSet, clusterID string) ([]interface{}, error) {
-	var result []interface{}
 	fake := k8s.GetClientset(clusterID)
+	if fake == nil {
+		return nil, fmt.Errorf("the k8s cluster %q has no client exist", clusterID)
+	}
+	var result []interface{}
 	services, err := createK8SServices(clusterID, service, headlessService)
 	if err != nil {
 		go deleteK8SServices(service.Namespace, clusterID, service.Name, headlessService.Name)
@@ -398,6 +484,9 @@ func DeploySatefulService(service, headlessService *v1.Service, statefulset *v1b
 // DeleteStatefulService delete stateful service
 func DeleteStatefulService(serviceName, namespace, clusterID string) error {
 	fake := k8s.GetClientset(clusterID)
+	if fake == nil {
+		return fmt.Errorf("the k8s cluster %q has no client exist", clusterID)
+	}
 	statefulset, err := getStatefulSet(serviceName, namespace, clusterID)
 	if err != nil {
 		log.Error("when delete statefulservice %v,get it's statefuleset err: %v", serviceName, err)
@@ -432,8 +521,11 @@ func DeleteStatefulService(serviceName, namespace, clusterID string) error {
 }
 
 func createK8SServices(clusterID string, services ...*v1.Service) ([]*v1.Service, error) {
-	svcs := []*v1.Service{}
 	fake := k8s.GetClientset(clusterID)
+	if fake == nil {
+		return nil, fmt.Errorf("the k8s cluster %q has no client exist", clusterID)
+	}
+	svcs := []*v1.Service{}
 	for i := range services {
 		svc, err := fake.Services().CreateService(services[i])
 		if err != nil {
@@ -446,6 +538,9 @@ func createK8SServices(clusterID string, services ...*v1.Service) ([]*v1.Service
 
 func deleteK8SServices(namespace, clusterID string, services ...string) error {
 	fake := k8s.GetClientset(clusterID)
+	if fake == nil {
+		return fmt.Errorf("the k8s cluster %q has no client exist", clusterID)
+	}
 	for i := range services {
 		if err := fake.Services().DeleteService(services[i], namespace); err != nil {
 			log.Error("delete service %v err: %v", services[i], err)
@@ -458,6 +553,9 @@ func deleteK8SServices(namespace, clusterID string, services ...string) error {
 
 func deletePVC(namespace, clusterID string, names ...string) error {
 	fake := k8s.GetClientset(clusterID)
+	if fake == nil {
+		return fmt.Errorf("the k8s cluster %q has no client exist", clusterID)
+	}
 	for i := range names {
 		if err := fake.PersistentVolumeClaims().DeletePersistentVolumeClaim(names[i], namespace); err != nil {
 			log.Error("delete PersistentVolumeClaim %v err: %v", names[i], err)
@@ -480,11 +578,17 @@ func getStatefulSetPVCNames(statefulset *v1beta1.StatefulSet) []string {
 
 func getStatefulSet(name, namespace, clusterID string) (*v1beta1.StatefulSet, error) {
 	fake := k8s.GetClientset(clusterID)
+	if fake == nil {
+		return nil, fmt.Errorf("the k8s cluster %q has no client exist", clusterID)
+	}
 	return fake.StatefulsetsV1beta1().GetStatefulSet(name, namespace)
 }
 
 func getStatefulSetServices(clusterID string, statefulset *v1beta1.StatefulSet) ([]v1.Service, error) {
 	fake := k8s.GetClientset(clusterID)
+	if fake == nil {
+		return nil, fmt.Errorf("the k8s cluster %q has no client exist", clusterID)
+	}
 	var labels []string
 	for k, v := range statefulset.Labels {
 		if k != "replicas" {
@@ -494,13 +598,16 @@ func getStatefulSetServices(clusterID string, statefulset *v1beta1.StatefulSet) 
 	}
 	services, err := fake.Services().ListService(strings.Join(labels, ","), statefulset.Namespace)
 	if err != nil {
-		return []v1.Service{}, err
+		return nil, err
 	}
 	return services, nil
 }
 
 func getStatefulSetPVCs(clusterID string, statefulset *v1beta1.StatefulSet) ([]v1.PersistentVolumeClaim, error) {
 	fake := k8s.GetClientset(clusterID)
+	if fake == nil {
+		return nil, fmt.Errorf("the k8s cluster %q has no client exist", clusterID)
+	}
 	var labels []string
 	for k, v := range statefulset.Labels {
 		if k != "replicas" {
@@ -514,17 +621,129 @@ func getStatefulSetPVCs(clusterID string, statefulset *v1beta1.StatefulSet) ([]v
 // CreatePersistentVolumeClaim create PersistentVolumeClaim
 func CreatePersistentVolumeClaim(pvc *v1.PersistentVolumeClaim, clusterID string) (*v1.PersistentVolumeClaim, error) {
 	fake := k8s.GetClientset(clusterID)
+	if fake == nil {
+		return nil, fmt.Errorf("the k8s cluster %q has no client exist", clusterID)
+	}
 	return fake.PersistentVolumeClaims().CreatePersistentVolumeClaim(pvc)
 }
 
 // DeletePersistentVolumeClaim delete PersistentVolumeClaim
 func DeletePersistentVolumeClaim(name, namespace, clusterID string) error {
 	fake := k8s.GetClientset(clusterID)
+	if fake == nil {
+		return fmt.Errorf("the k8s cluster %q has no client exist", clusterID)
+	}
 	return fake.PersistentVolumeClaims().DeletePersistentVolumeClaim(name, namespace)
 }
 
 // ListPersistentVolumeClaim list PersistentVolumeClaim by namespace
 func ListPersistentVolumeClaim(namespace, clusterID string) ([]v1.PersistentVolumeClaim, error) {
 	fake := k8s.GetClientset(clusterID)
+	if fake == nil {
+		return nil, fmt.Errorf("the k8s cluster %q has no client exist", clusterID)
+	}
 	return fake.PersistentVolumeClaims().ListPersistentVolumeClaim("", namespace)
+}
+
+// ListPod list pod ny namespace
+func ListPod(namespace, clusterID string, listOptions metav1.ListOptions) ([]v1.Pod, error) {
+	fake := k8s.GetClientset(clusterID)
+	if fake == nil {
+		return nil, fmt.Errorf("the k8s cluster %q has no client exist", clusterID)
+	}
+	return fake.Pods().ListPods(namespace, listOptions)
+}
+
+// DeletePod delete pod
+func DeletePod(name, namespace, clusterID string) error {
+	fake := k8s.GetClientset(clusterID)
+	if fake == nil {
+		return fmt.Errorf("the k8s cluster %q has no client exist", clusterID)
+	}
+	return fake.Pods().DeletePod(name, namespace)
+}
+
+// GetNode get node
+func GetNode(name, clusterID string) (*v1.Node, error) {
+	fake := k8s.GetClientset(clusterID)
+	if fake == nil {
+		return nil, fmt.Errorf("the k8s cluster %q has no client exist", clusterID)
+	}
+	return fake.Nodes().Get(name)
+}
+
+// UpdateNode update node
+func UpdateNode(node *v1.Node, clusterID string) (*v1.Node, error) {
+	fake := k8s.GetClientset(clusterID)
+	if fake == nil {
+		return nil, fmt.Errorf("the k8s cluster %q has no client exist", clusterID)
+	}
+	return fake.Nodes().Update(node)
+}
+
+func ListNode(clusterID string, listOptions metav1.ListOptions) ([]v1.Node, error) {
+	fake := k8s.GetClientset(clusterID)
+	if fake == nil {
+		return nil, fmt.Errorf("the k8s cluster %q has no client exist", clusterID)
+	}
+	return fake.Nodes().List(listOptions)
+}
+
+func TranslateK8sNode(clusterID string, knode v1.Node) *models.Node {
+	n := &models.Node{}
+	n.HostName = node.GetHostName(&knode)
+	n.Internal = node.GetInternalIP(&knode)
+	n.Schedulable = node.IsNodeSchedule(&knode)
+	n.Status = node.IsNodeReady(&knode)
+	n.DiskPressure = node.IsDiskPressure(&knode)
+	n.MemoryPressure = node.IsMemoryPressure(&knode)
+	n.CreateTime = knode.ObjectMeta.CreationTimestamp
+	n.NodeVersion = knode.Status.NodeInfo
+
+	//assert node is master or slave ？
+	if v, ok := knode.ObjectMeta.Labels["kubeadm.alpha.kubernetes.io/role"]; ok {
+		n.MasterOrSlave = v
+	} else {
+		n.MasterOrSlave = "slave"
+	}
+
+	capacity := knode.Status.Capacity
+	allocatable := knode.Status.Allocatable
+	if cpuQuantity, ok := capacity["cpu"]; ok {
+		n.CPUCapacity = cpuQuantity.ScaledValue(resource.Milli)
+	}
+	if cpuAllocatable, ok := allocatable["cpu"]; ok {
+		n.CPUAllocatable = cpuAllocatable.ScaledValue(resource.Milli)
+	}
+	if memQuantity, ok := capacity["memory"]; ok {
+		n.MemoryCapacity = memQuantity.ScaledValue(resource.Kilo)
+	}
+
+	if memoryAllocatable, ok := allocatable["memory"]; ok {
+		n.MemoryAllocatable = memoryAllocatable.ScaledValue(resource.Kilo)
+	}
+	if podQuantity, ok := capacity["pods"]; ok {
+		n.PodCapacity, _ = podQuantity.AsInt64()
+	}
+
+	podList, err := ListPod(v1.NamespaceAll, clusterID, metav1.ListOptions{FieldSelector: "spec.nodeName=" + knode.Name})
+	if err != nil {
+		glog.Errorf("when get node detail, get node %v's pods err: %v", knode.Name, err)
+	}
+	n.ContainerCnt = len(podList)
+
+	containers := []models.Container{}
+	for _, pod := range podList {
+		container := models.Container{}
+		container.AppName = pod.Labels[models.MinipaasAppName]
+		container.Namespace = pod.Namespace
+		container.CreateAt = pod.CreationTimestamp.Time
+		container.Image = pod.Spec.Containers[0].Image
+		container.Name = pod.Name
+		container.Status = string(pod.Status.Phase)
+		container.URL = pod.Status.PodIP
+		containers = append(containers, container)
+	}
+	n.Containers = containers
+	return n
 }

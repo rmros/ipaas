@@ -10,7 +10,7 @@ func init() {
 	beego.GlobalControllerRouter["ipaas/controllers/app:AppController"] = append(beego.GlobalControllerRouter["ipaas/controllers/app:AppController"],
 		beego.ControllerComments{
 			Method: "CreateApp",
-			Router: `/apps`,
+			Router: `/`,
 			AllowHTTPMethods: []string{"post"},
 			MethodParams: param.Make(),
 			Params: nil})
@@ -18,7 +18,7 @@ func init() {
 	beego.GlobalControllerRouter["ipaas/controllers/app:AppController"] = append(beego.GlobalControllerRouter["ipaas/controllers/app:AppController"],
 		beego.ControllerComments{
 			Method: "ListApp",
-			Router: `/apps`,
+			Router: `/`,
 			AllowHTTPMethods: []string{"get"},
 			MethodParams: param.Make(),
 			Params: nil})
@@ -26,31 +26,71 @@ func init() {
 	beego.GlobalControllerRouter["ipaas/controllers/app:AppController"] = append(beego.GlobalControllerRouter["ipaas/controllers/app:AppController"],
 		beego.ControllerComments{
 			Method: "DeleteApp",
-			Router: `/apps/:app`,
+			Router: `/:app`,
 			AllowHTTPMethods: []string{"delete"},
 			MethodParams: param.Make(),
 			Params: nil})
 
 	beego.GlobalControllerRouter["ipaas/controllers/app:AppController"] = append(beego.GlobalControllerRouter["ipaas/controllers/app:AppController"],
 		beego.ControllerComments{
-			Method: "ReDeployApp",
-			Router: `/apps/:app/redeploy`,
+			Method: "OperationApp",
+			Router: `/:app/:verb`,
 			AllowHTTPMethods: []string{"put"},
 			MethodParams: param.Make(),
 			Params: nil})
 
-	beego.GlobalControllerRouter["ipaas/controllers/app:AppController"] = append(beego.GlobalControllerRouter["ipaas/controllers/app:AppController"],
+	beego.GlobalControllerRouter["ipaas/controllers/app:ConfigController"] = append(beego.GlobalControllerRouter["ipaas/controllers/app:ConfigController"],
 		beego.ControllerComments{
-			Method: "StartApp",
-			Router: `/apps/:app/start`,
+			Method: "CreateConfig",
+			Router: `/`,
+			AllowHTTPMethods: []string{"post"},
+			MethodParams: param.Make(),
+			Params: nil})
+
+	beego.GlobalControllerRouter["ipaas/controllers/app:ConfigController"] = append(beego.GlobalControllerRouter["ipaas/controllers/app:ConfigController"],
+		beego.ControllerComments{
+			Method: "ListConfig",
+			Router: `/`,
+			AllowHTTPMethods: []string{"get"},
+			MethodParams: param.Make(),
+			Params: nil})
+
+	beego.GlobalControllerRouter["ipaas/controllers/app:ConfigController"] = append(beego.GlobalControllerRouter["ipaas/controllers/app:ConfigController"],
+		beego.ControllerComments{
+			Method: "DeleteConfig",
+			Router: `/:config`,
+			AllowHTTPMethods: []string{"delete"},
+			MethodParams: param.Make(),
+			Params: nil})
+
+	beego.GlobalControllerRouter["ipaas/controllers/app:ConfigController"] = append(beego.GlobalControllerRouter["ipaas/controllers/app:ConfigController"],
+		beego.ControllerComments{
+			Method: "AddConfigData",
+			Router: `/:config`,
 			AllowHTTPMethods: []string{"put"},
 			MethodParams: param.Make(),
 			Params: nil})
 
-	beego.GlobalControllerRouter["ipaas/controllers/app:AppController"] = append(beego.GlobalControllerRouter["ipaas/controllers/app:AppController"],
+	beego.GlobalControllerRouter["ipaas/controllers/app:ConfigController"] = append(beego.GlobalControllerRouter["ipaas/controllers/app:ConfigController"],
 		beego.ControllerComments{
-			Method: "StopApp",
-			Router: `/apps/:app/stop`,
+			Method: "DeleteConfigData",
+			Router: `/:config/:key`,
+			AllowHTTPMethods: []string{"delete"},
+			MethodParams: param.Make(),
+			Params: nil})
+
+	beego.GlobalControllerRouter["ipaas/controllers/app:ContainerController"] = append(beego.GlobalControllerRouter["ipaas/controllers/app:ContainerController"],
+		beego.ControllerComments{
+			Method: "ListContainer",
+			Router: `/`,
+			AllowHTTPMethods: []string{"get"},
+			MethodParams: param.Make(),
+			Params: nil})
+
+	beego.GlobalControllerRouter["ipaas/controllers/app:ContainerController"] = append(beego.GlobalControllerRouter["ipaas/controllers/app:ContainerController"],
+		beego.ControllerComments{
+			Method: "ReCreateContainer",
+			Router: `/`,
 			AllowHTTPMethods: []string{"put"},
 			MethodParams: param.Make(),
 			Params: nil})
@@ -58,7 +98,7 @@ func init() {
 	beego.GlobalControllerRouter["ipaas/controllers/app:ServiceController"] = append(beego.GlobalControllerRouter["ipaas/controllers/app:ServiceController"],
 		beego.ControllerComments{
 			Method: "CreateService",
-			Router: `/services`,
+			Router: `/`,
 			AllowHTTPMethods: []string{"post"},
 			MethodParams: param.Make(),
 			Params: nil})
@@ -66,48 +106,64 @@ func init() {
 	beego.GlobalControllerRouter["ipaas/controllers/app:ServiceController"] = append(beego.GlobalControllerRouter["ipaas/controllers/app:ServiceController"],
 		beego.ControllerComments{
 			Method: "ListService",
-			Router: `/services`,
+			Router: `/`,
 			AllowHTTPMethods: []string{"get"},
 			MethodParams: param.Make(),
 			Params: nil})
 
 	beego.GlobalControllerRouter["ipaas/controllers/app:ServiceController"] = append(beego.GlobalControllerRouter["ipaas/controllers/app:ServiceController"],
 		beego.ControllerComments{
-			Method: "ReDeployService",
-			Router: `/services/:service/redeploy`,
-			AllowHTTPMethods: []string{"put"},
-			MethodParams: param.Make(),
-			Params: nil})
-
-	beego.GlobalControllerRouter["ipaas/controllers/app:ServiceController"] = append(beego.GlobalControllerRouter["ipaas/controllers/app:ServiceController"],
-		beego.ControllerComments{
-			Method: "StartService",
-			Router: `/services/:service/start`,
-			AllowHTTPMethods: []string{"put"},
-			MethodParams: param.Make(),
-			Params: nil})
-
-	beego.GlobalControllerRouter["ipaas/controllers/app:ServiceController"] = append(beego.GlobalControllerRouter["ipaas/controllers/app:ServiceController"],
-		beego.ControllerComments{
-			Method: "ReStartService",
-			Router: `/services/:service/start`,
-			AllowHTTPMethods: []string{"put"},
-			MethodParams: param.Make(),
-			Params: nil})
-
-	beego.GlobalControllerRouter["ipaas/controllers/app:ServiceController"] = append(beego.GlobalControllerRouter["ipaas/controllers/app:ServiceController"],
-		beego.ControllerComments{
 			Method: "DeleteService",
-			Router: `/services/service`,
+			Router: `/:service`,
 			AllowHTTPMethods: []string{"delete"},
 			MethodParams: param.Make(),
 			Params: nil})
 
 	beego.GlobalControllerRouter["ipaas/controllers/app:ServiceController"] = append(beego.GlobalControllerRouter["ipaas/controllers/app:ServiceController"],
 		beego.ControllerComments{
-			Method: "StopService",
-			Router: `/services/service/stop`,
+			Method: "OperatorService",
+			Router: `/:service/:verb`,
 			AllowHTTPMethods: []string{"put"},
+			MethodParams: param.Make(),
+			Params: nil})
+
+	beego.GlobalControllerRouter["ipaas/controllers/app:ServiceController"] = append(beego.GlobalControllerRouter["ipaas/controllers/app:ServiceController"],
+		beego.ControllerComments{
+			Method: "ListServiceEvents",
+			Router: `/:service/events`,
+			AllowHTTPMethods: []string{"get"},
+			MethodParams: param.Make(),
+			Params: nil})
+
+	beego.GlobalControllerRouter["ipaas/controllers/app:ServiceController"] = append(beego.GlobalControllerRouter["ipaas/controllers/app:ServiceController"],
+		beego.ControllerComments{
+			Method: "ListServiceMetrics",
+			Router: `/:service/metrics`,
+			AllowHTTPMethods: []string{"get"},
+			MethodParams: param.Make(),
+			Params: nil})
+
+	beego.GlobalControllerRouter["ipaas/controllers/app:StorageController"] = append(beego.GlobalControllerRouter["ipaas/controllers/app:StorageController"],
+		beego.ControllerComments{
+			Method: "CreateStorage",
+			Router: `/`,
+			AllowHTTPMethods: []string{"post"},
+			MethodParams: param.Make(),
+			Params: nil})
+
+	beego.GlobalControllerRouter["ipaas/controllers/app:StorageController"] = append(beego.GlobalControllerRouter["ipaas/controllers/app:StorageController"],
+		beego.ControllerComments{
+			Method: "ListStorage",
+			Router: `/`,
+			AllowHTTPMethods: []string{"get"},
+			MethodParams: param.Make(),
+			Params: nil})
+
+	beego.GlobalControllerRouter["ipaas/controllers/app:StorageController"] = append(beego.GlobalControllerRouter["ipaas/controllers/app:StorageController"],
+		beego.ControllerComments{
+			Method: "DeleteStorage",
+			Router: `/`,
+			AllowHTTPMethods: []string{"delete"},
 			MethodParams: param.Make(),
 			Params: nil})
 

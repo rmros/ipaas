@@ -1,5 +1,5 @@
 /*
-Copyright [yyyy] [name of copyright owner]
+Copyright [huangjia] [name of copyright owner]
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -33,9 +33,9 @@ import (
 
 //PodInterface has methods to work with Pod resources.
 type PodInterface interface {
-	DeletePod(pod v1.Pod) error
+	DeletePod(name, namesapce string) error
 	GetPod(name, namesapce string) (*v1.Pod, error)
-	ListPods(namespace string) ([]v1.Pod, error)
+	ListPods(namespace string, listOptions metav1.ListOptions) ([]v1.Pod, error)
 	ListPodByDeploymentName(name, namespace string) ([]v1.Pod, error)
 	GetPodLogs(name, namespace string, logOptions *v1.PodLogOptions) (string, error)
 	GetPodMetrics(namespace, podName, metric_name string) (map[string]interface{}, error)
@@ -51,11 +51,11 @@ func Pods(client *kubernetes.Clientset) PodInterface {
 	return &pods{Clientset: client}
 }
 
-func (client *pods) DeletePod(pod v1.Pod) error {
+func (client *pods) DeletePod(name, namesapce string) error {
 DELETE_POD:
 	deletePropagationForeground := new(metav1.DeletionPropagation)
 	*deletePropagationForeground = metav1.DeletePropagationForeground
-	if err := client.CoreV1().Pods(pod.Namespace).Delete(pod.Name, &metav1.DeleteOptions{PropagationPolicy: deletePropagationForeground}); err != nil {
+	if err := client.CoreV1().Pods(namesapce).Delete(name, &metav1.DeleteOptions{PropagationPolicy: deletePropagationForeground}); err != nil {
 		if errors.IsConflict(err) {
 			goto DELETE_POD
 		}
@@ -68,9 +68,9 @@ func (client *pods) GetPod(name, namesapce string) (*v1.Pod, error) {
 	return client.CoreV1().Pods(namesapce).Get(name, metav1.GetOptions{})
 }
 
-func (client *pods) ListPods(namespace string) ([]v1.Pod, error) {
-	list, err := client.CoreV1().Pods(namespace).List(metav1.ListOptions{})
-	if err != nil {
+func (client *pods) ListPods(namespace string, listOptions metav1.ListOptions) ([]v1.Pod, error) {
+	list, err := client.CoreV1().Pods(namespace).List(listOptions)
+	if err != nil || len(list.Items) == 0 {
 		return []v1.Pod{}, err
 	}
 	return list.Items, nil
@@ -78,7 +78,7 @@ func (client *pods) ListPods(namespace string) ([]v1.Pod, error) {
 
 func (client *pods) ListPodByDeploymentName(name, namespace string) ([]v1.Pod, error) {
 	list, err := client.CoreV1().Pods(namespace).List(metav1.ListOptions{LabelSelector: "minipaas.io/name=" + name})
-	if err != nil {
+	if err != nil || len(list.Items) == 0 {
 		return []v1.Pod{}, err
 	}
 	return list.Items, nil

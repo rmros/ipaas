@@ -1,5 +1,5 @@
 /*
-Copyright [yyyy] [name of copyright owner]
+Copyright [huangjia] [name of copyright owner]
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -30,7 +30,6 @@ import (
 	"ipaas/pkg/tools/storage/redis"
 	"ipaas/pkg/tools/uuid"
 	"ipaas/pkg/tools/validate"
-	"time"
 
 	"github.com/golang/glog"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -44,8 +43,8 @@ type UserController struct {
 // Login login
 // @Title Login server
 // @Description Login server by username and password
-// @Success 201		{object}	models.models.User
-// @Param	body		body 	models.models.User		true	"body for user content"
+// @Success 200		{object}	models.User
+// @Param	body		body 	models.User		true	"body for user content"
 // @router /login [post]
 func (c *UserController) Login() {
 	user, err := validate.ValidateUser(c.Ctx.Request)
@@ -66,15 +65,15 @@ func (c *UserController) Login() {
 		c.Response500(err)
 		return
 	}
-	c.Data["json"] = map[string]interface{}{"token": token}
+	user.APIToken = token
+	c.Data["json"] = map[string]interface{}{"user": user}
 	c.ServeJSON()
 }
 
 // Logout Logout
 // @Title Logout server
 // @Description Login server by username and password
-// @Success 201		{object}	models.models.User
-// @Param	body		body 	models.models.User		true	"body for user content"
+// @Success 200
 // @router /logout [delete]
 func (c *UserController) Logout() {
 	if err := redis.GetClient().Del(c.Ctx.Input.Header("Username")).Err(); err != nil {
@@ -88,8 +87,8 @@ func (c *UserController) Logout() {
 // Create create user
 // @Title Create server
 // @Description create a user
-// @Success 201		{object}	models.models.User
-// @Param	body		body 	models.models.User		true	"body for user content"
+// @Success 200		{object}	models.User
+// @Param	body		body 	models.User		true	"body for user content"
 // @router / [post]
 func (c *UserController) Create() {
 	user, err := validate.ValidateUser(c.Ctx.Request)
@@ -101,8 +100,10 @@ func (c *UserController) Create() {
 		c.Response400(fmt.Errorf("name and password mustn't null"))
 		return
 	}
-	user.CreationTime = time.Now()
-	user.LastLoginTime = time.Now()
+	if user.Exsit() {
+		c.Response400(fmt.Errorf("user [%v] was exsit in db", user.Name))
+		return
+	}
 	if err := user.Create(); err != nil {
 		c.Response500(err)
 		return
@@ -127,38 +128,56 @@ func (c *UserController) Create() {
 // 2. create user namespace in kubernentes cluster
 // @Title Delete server
 // @Description delete a user
-// @Success 201		{object}	models.models.User
-// @Param	body		body 	models.models.User		true	"body for user content"
-// @router /:user [delete]
+// @Success 200
+// @Param	names		body 	[]string		true	"body for user content"
+// @router / [delete]
 func (c *UserController) Delete() {
-	uname := c.GetString(":user")
-	if uname == "" {
-		c.Response400(fmt.Errorf("the request param user mustn't null"))
+	names, err := validate.Array(c.Ctx.Request)
+	if err != nil {
+		c.Response400(fmt.Errorf("the request param invalid: %v", err))
 		return
 	}
-	user := new(models.User)
-	user.Name = uname
-	if err := user.Delete(); err != nil {
-		c.Response500(err)
+	if len(names) == 0 {
+		c.Response400(fmt.Errorf("the request param users id mustn't null"))
+		return
+	}
+	errs := []error{}
+	for _, name := range names {
+		if name == "" {
+			c.Response400(fmt.Errorf("the request param user mustn't null"))
+			return
+		}
+		user := new(models.User)
+		user.Name = name
+		if err := user.Delete(); err != nil {
+			glog.Errorf("delete user %v err: %v", name, err)
+			errs = append(errs, err)
+			continue
+		}
+
+		deletenamespace := func(name string) {
+			for clusterID, client := range client.GetClientsets() {
+				if err := v1.Namespaces(client.Clientset).Delete(name, &metav1.DeleteOptions{}); err != nil {
+					glog.Errorf("when delete user,delete k8s namespace [%v] in cluster [%v] err: %v", user.Name, clusterID, err)
+					errs = append(errs, err)
+				}
+			}
+		}
+		go deletenamespace(name)
+	}
+	if len(errs) > 0 {
+		c.Response(200, errs)
 		return
 	}
 	c.Response(200, "ok")
 
-	deletenamespace := func() {
-		for clusterID, client := range client.GetClientsets() {
-			if err := v1.Namespaces(client.Clientset).Delete(uname, &metav1.DeleteOptions{}); err != nil {
-				glog.Errorf("when add user,create k8s namespace [%v] in cluster [%v] err: %v", user.Name, clusterID, err)
-			}
-		}
-	}
-	go deletenamespace()
 }
 
 // ResetPassword update user password
 // @Title CreateUser server
 // @Description create a user
-// @Success 201		{object}	models.models.User
-// @Param	body		body 	models.models.User		true	"body for user content"
+// @Success 200
+// @Param	body		body 	models.User		true	"body for user content"
 // @router / [put]
 func (c *UserController) ResetPassword() {
 	var user models.User
@@ -176,8 +195,7 @@ func (c *UserController) ResetPassword() {
 // List list all  user
 // @Title list server
 // @Description list all user
-// @Success 201		{object}	models.models.User
-// @Param	body		body 	models.models.User		true	"body for user content"
+// @Success 200		{object}	models.User
 // @router / [get]
 func (c *UserController) List() {
 	users, err := new(models.User).ListAll()

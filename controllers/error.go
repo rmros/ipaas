@@ -12,8 +12,7 @@ type Error struct {
 
 func (e *Error) ResponseError(code int, err error) {
 	e.Ctx.ResponseWriter.WriteHeader(code)
-	e.Data["json"] = map[string]interface{}{"code": code, "errorMessage": err.Error()}
-	e.ServeJSON()
+	e.Ctx.ResponseWriter.Write([]byte(err.Error()))
 }
 
 func (e *Error) Response400(err error) {

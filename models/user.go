@@ -1,5 +1,5 @@
 /*
-Copyright [yyyy] [name of copyright owner]
+Copyright [huangjia] [name of copyright owner]
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -53,4 +53,8 @@ func (user *User) ListAll() ([]*User, error) {
 	var users []*User
 	err := mysql.GetDB().Find(&users).Error
 	return users, err
+}
+
+func (user *User) Exsit() bool {
+	return !mysql.GetDB().Model(user).Where("name=?", user.Name).RecordNotFound()
 }

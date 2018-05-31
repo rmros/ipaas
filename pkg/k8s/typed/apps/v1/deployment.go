@@ -1,5 +1,5 @@
 /*
-Copyright [yyyy] [name of copyright owner]
+Copyright [huangjia] [name of copyright owner]
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -98,7 +98,7 @@ func (client *deployments) ListDeployment(labels, namespace string) ([]appsv1.De
 		listOption.LabelSelector = labels
 	}
 	deploymentList, err := client.AppsV1().Deployments(namespace).List(listOption)
-	if err != nil {
+	if err != nil || len(deploymentList.Items) == 0 {
 		return []appsv1.Deployment{}, err
 	}
 	return deploymentList.Items, nil
@@ -106,7 +106,7 @@ func (client *deployments) ListDeployment(labels, namespace string) ([]appsv1.De
 
 func (client *deployments) ListPodByDeploymentName(name, namespace string) ([]v1.Pod, error) {
 	list, err := client.CoreV1().Pods(namespace).List(metav1.ListOptions{LabelSelector: "minipaas.io/name=" + name})
-	if err != nil {
+	if err != nil || len(list.Items) == 0 {
 		return []v1.Pod{}, err
 	}
 	return list.Items, nil

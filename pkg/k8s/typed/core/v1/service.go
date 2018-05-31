@@ -1,5 +1,5 @@
 /*
-Copyright [yyyy] [name of copyright owner]
+Copyright [huangjia] [name of copyright owner]
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -90,7 +90,7 @@ func (client *services) ListService(labels, namespace string) ([]v1.Service, err
 		listOption.LabelSelector = labels
 	}
 	serviceList, err := client.CoreV1().Services(namespace).List(listOption)
-	if err != nil {
+	if err != nil || len(serviceList.Items) == 0 {
 		return []v1.Service{}, err
 	}
 	return serviceList.Items, nil

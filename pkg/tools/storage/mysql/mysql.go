@@ -1,5 +1,5 @@
 /*
-Copyright [yyyy] [name of copyright owner]
+Copyright [huangjia] [name of copyright owner]
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@ func init() {
 	if err != nil {
 		log.Critical("init mysql connection err: %v", err)
 	}
+	db.LogMode(true)
 }
 
 //GetDB return the *gorm.DB

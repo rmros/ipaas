@@ -1,5 +1,5 @@
 /*
-Copyright [yyyy] [name of copyright owner]
+Copyright [huangjia] [name of copyright owner]
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -61,7 +61,7 @@ func (client *persistentVolumeClaims) ListPersistentVolumeClaim(labels string, n
 		listOption.LabelSelector = labels
 	}
 	list, err := client.CoreV1().PersistentVolumeClaims(namespace).List(listOption)
-	if err != nil {
+	if err != nil || len(list.Items) == 0 {
 		return []v1.PersistentVolumeClaim{}, err
 	}
 	return list.Items, err

@@ -19,6 +19,7 @@ import (
 
 	"ipaas/pkg/tools/storage/mysql"
 
+	"github.com/jinzhu/gorm"
 	"k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -123,21 +124,24 @@ type Volume struct {
 
 //Storage rdb storage
 type Storage struct {
-	ID          uint   `json:"id"`
-	Name        string `json:"name"`
-	Type        string `json:"type"` //default is rbd
-	Size        string `json:"size"`
-	AccessModes string `json:"accessModes"`
-	Namespace   string `json:"namespace"`
-	Used        bool   `json:"used"`
-	ServiceName string `json:"serviceName"`
-	MountPath   string `json:"mountPath"`
+	ID          uint      `json:"id,omitempty"`
+	Name        string    `json:"name"`
+	Type        string    `json:"type"` //default is rbd
+	Size        string    `json:"size"`
+	AccessModes string    `json:"accessModes"`
+	Namespace   string    `json:"namespace"`
+	CreateAt    time.Time `json:"createAt"`
+	Status      string    `json:"status"`
+	Used        bool      `json:"used"`
+	ServiceName string    `json:"serviceName"`
+	MountPath   string    `json:"mountPath"`
 }
 
 //Config config group
 type Config struct {
-	Name string            `json:"name,omitempty"`
-	Data map[string]string `json:"data,omitempty"`
+	Name      string            `json:"name,omitempty"`
+	Namespace string            `json:"namespace,omitempty"`
+	Data      map[string]string `json:"data,omitempty"`
 }
 
 //Event the resource event
@@ -240,8 +244,9 @@ type PodLifeCycle struct {
 }
 
 const (
+	_ = iota
 	// RoleNormal the normal user
-	RoleNormal = iota
+	RoleNormal
 	// RoleTeam the team manager
 	RoleTeam
 	// RoleAdmin the system manager
@@ -257,21 +262,22 @@ const (
 
 // User user info
 type User struct {
-	ID             int32     `json:"id,omitempty" gorm:"primary_key"`
-	Name           string    `json:"name,omitempty"`
-	Displayname    string    `json:"displayname,omitempty"`
-	Password       string    `json:"password,omitempty"`
-	Email          string    `json:"email,omitempty"`
-	Phone          string    `json:"phone,omitempty"`
-	CreationTime   time.Time `json:"createTime,omitempty"`
-	LastLoginTime  time.Time `json:"lastLoginTime,omitempty"`
-	LoginFrequency int       `json:"loginFrequency,omitempty"`
-	Active         int8      `json:"active,omitempty"`
-	APIToken       string    `json:"apiToken,omitempty"`
-	Role           int32     `json:"role,omitempty"`
-	Type           int       `json:"type,omitempty"`
-	Company        string    `json:"company,omitempty"`
-	Teams          []*Team   `gorm:"teams,many2many:user_teams;"`
+	ID             uint       `json:"id,omitempty" gorm:"primary_key"`
+	CreatedAt      time.Time  `json:"createdAt,omitempty"`
+	UpdatedAt      time.Time  `json:"updatedAt,omitempty"`
+	DeletedAt      *time.Time `json:"deletedAt,omitempty" sql:"index"`
+	Name           string     `json:"name,omitempty" gorm:"UNIQUE_INDEX"`
+	Displayname    string     `json:"displayname,omitempty"`
+	Password       string     `json:"password,omitempty"`
+	Email          string     `json:"email,omitempty"`
+	Phone          string     `json:"phone,omitempty"`
+	LoginFrequency int        `json:"loginFrequency,omitempty"`
+	Active         int8       `json:"active,omitempty" gorm:"DEFAULT:1"`
+	APIToken       string     `json:"apiToken,omitempty"`
+	Role           int32      `json:"role,omitempty" gorm:"DEFAULT:1"`
+	Type           int        `json:"type,omitempty"`
+	Company        string     `json:"company,omitempty"`
+	Teams          []*Team    `gorm:"teams,many2many:user_teams;"`
 }
 
 // TableName return user model's  table name
@@ -281,12 +287,11 @@ func (user *User) TableName() string {
 
 // Team team info
 type Team struct {
-	ID           string    `json:"id,omitempty" gorm:"primary_key"`
-	Name         string    `json:"name,omitempty"`
-	Description  string    `json:"description,omitempty"`
-	CreatorID    int32     `json:"creatorID,omitempty"`
-	CreationTime time.Time `json:"creationTime,omitempty"`
-	Users        []*User   `json:"users,omitempty" gorm:"many2many:team_users;"`
+	gorm.Model
+	Name        string  `json:"name,omitempty" gorm:"primary_key"`
+	Description string  `json:"description,omitempty"`
+	CreatorID   int32   `json:"creatorID,omitempty"`
+	Users       []*User `json:"users,omitempty" `
 }
 
 // TableName return team model's  table name
@@ -297,9 +302,9 @@ func (team *Team) TableName() string {
 // Space space info
 type Space struct {
 	ID           string    `json:"id,omitempty" gorm:"primary_key"`
-	Name         string    `json:"name,omitempty"`
+	Name         string    `json:"name"`
 	Description  string    `json:"description,omitempty"`
-	TeamID       string    `json:"teamID,omitempty"`
+	TeamID       string    `json:"teamID"`
 	CreationTime time.Time `json:"creationTime,omitempty"`
 	Type         int       `json:"type,omitempty"` // 1 personal namespace 2 team's namespace
 }
@@ -319,4 +324,41 @@ type Company struct {
 // TableName return Company model's  table name
 func (company *Company) TableName() string {
 	return "companys"
+}
+
+// Container pod info
+type Container struct {
+	Name      string    `json:"name"`
+	Status    string    `json:"status"`
+	AppName   string    `json:"appName"`
+	Namespace string    `json:"namespace"`
+	Image     string    `json:"image"`
+	URL       string    `json:"url"`
+	CreateAt  time.Time `json:"createAt"`
+}
+
+// TableName return Container model's  table name
+func (container *Container) TableName() string {
+	return "containers"
+}
+
+type Node struct {
+	HostName          string            `json:"hostName"`
+	Internal          string            `json:"internal"`
+	Status            bool              `json:"status"`
+	MasterOrSlave     string            `json:"matserOrslave"`
+	ContainerCnt      int               `json:"containerCnt"`
+	CPUUsage          int               `json:"cpuUsage"`
+	CPUAllocatable    int64             `json:"cpuAllocatable"`
+	CPUCapacity       int64             `json:"cpuCapacity"`
+	MemoryUsage       int               `json:"memoryUsage"`
+	MemoryAllocatable int64             `json:"memoryAllocatable"`
+	MemoryCapacity    int64             `json:"memoryCapacity"`
+	PodCapacity       int64             `json:"podCapacity"`
+	Schedulable       bool              `json:"schedulable"`
+	DiskPressure      bool              `json:"diskPressure"`
+	MemoryPressure    bool              `json:"memoryPressure"`
+	CreateTime        metav1.Time       `json:"createT_at"`
+	NodeVersion       v1.NodeSystemInfo `json:"version"`
+	Containers        []Container       `json:"containers"`
 }

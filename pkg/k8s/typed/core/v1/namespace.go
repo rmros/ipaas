@@ -1,5 +1,5 @@
 /*
-Copyright [yyyy] [name of copyright owner]
+Copyright [huangjia] [name of copyright owner]
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ type NamespaceInterface interface {
 	DeleteCollection(options *metav1.DeleteOptions, listOptions metav1.ListOptions) error
 	Update(namespace *v1.Namespace) (*v1.Namespace, error)
 	List(options metav1.ListOptions) ([]v1.Namespace, error)
+	Get(name string) (*v1.Namespace, error)
 }
 
 type namespaces struct {
@@ -60,4 +61,12 @@ func (c *namespaces) List(options metav1.ListOptions) ([]v1.Namespace, error) {
 		return []v1.Namespace{}, err
 	}
 	return list.Items, nil
+}
+
+func (c *namespaces) Get(name string) (*v1.Namespace, error) {
+	ns, err := c.CoreV1().Namespaces().Get(name, metav1.GetOptions{})
+	if err != nil || ns.Name == "" {
+		return nil, err
+	}
+	return ns, nil
 }

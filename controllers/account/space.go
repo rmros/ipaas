@@ -1,5 +1,5 @@
 /*
-Copyright [yyyy] [name of copyright owner]
+Copyright [huangjia] [name of copyright owner]
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -33,8 +33,8 @@ type SpaceController struct {
 // @Title CreateSpace server
 // @Description create namespace
 // @Success 201		{object}	models.Space
-// @Param	body		body 	models.User		true	"body for user content"
-// @router /spaces [post]
+// @Param	body		body 	models.Space		true	"body for user content"
+// @router / [post]
 func (c *SpaceController) CreateSpace() {
 	space, err := validate.ValidateSpace(c.Ctx.Request)
 	if err != nil {
@@ -44,6 +44,7 @@ func (c *SpaceController) CreateSpace() {
 	ns := space.TOK8sNamespace()
 	if err = createNamespace(c.GetString(":cluster"), ns); err != nil {
 		c.Response500(err)
+		return
 	}
 	c.Response(201, "ok")
 }
@@ -51,11 +52,10 @@ func (c *SpaceController) CreateSpace() {
 // DeleteSpace DeleteSpace
 // @Title DeleteSpace server
 // @Description delete namespace
-// @Success 200		{object}	models.Space
-// @Param	body		body 	models.User		true	"body for user content"
-// @router /spaces/:space [delete]
+// @Success 200
+// @router /:namespace [delete]
 func (c *SpaceController) DeleteSpace() {
-	name := c.GetString(":space")
+	name := c.GetString(":namespace")
 	cluster := c.GetString(":cluster")
 	if err := deleteNamespace(cluster, name, ""); err != nil {
 		c.Response500(err)
@@ -67,9 +67,8 @@ func (c *SpaceController) DeleteSpace() {
 // ListSpace ListSpace
 // @Title ListSpace server
 // @Description list namespace
-// @Success 200		{object}	models.Space
-// @Param	body		body 	models.User		true	"body for user content"
-// @router /spaces [get]
+// @Success 200		{object}	[]models.Space
+// @router / [get]
 func (c *SpaceController) ListSpace() {
 	cluster := c.GetString(":cluster")
 	namespaces, err := listNamespace(cluster)
@@ -77,5 +76,21 @@ func (c *SpaceController) ListSpace() {
 		c.Response500(err)
 		return
 	}
-	c.Response(200, namespaces)
+	c.Response(200, decodeNamespaces(namespaces))
+}
+
+// GetSpace GetSpace
+// @Title GetSpace server
+// @Description get namespace by name
+// @Success 200		{object}	models.Space
+// @router /:namespace [get]
+func (c *SpaceController) GetSpace() {
+	cluster := c.GetString(":cluster")
+	name := c.GetString(":namespace")
+	namespace, err := getNamespace(cluster, name)
+	if err != nil {
+		c.Response500(err)
+		return
+	}
+	c.Response(200, decodeNamespace(namespace))
 }

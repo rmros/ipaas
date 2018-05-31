@@ -1,5 +1,5 @@
 /*
-Copyright [yyyy] [name of copyright owner]
+Copyright [huangjia] [name of copyright owner]
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -23,4 +23,16 @@ import (
 // NetworkController the network controller
 type NetworkController struct {
 	base.BaseController
+}
+
+func (c *NetworkController) CreateNetworkPolicy() {
+
+}
+
+func (c *NetworkController) ListNetworkPolicy() {
+
+}
+
+func (c *NetworkController) DeleteNetworkPolicy() {
+
 }

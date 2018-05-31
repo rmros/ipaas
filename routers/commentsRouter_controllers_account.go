@@ -10,7 +10,7 @@ func init() {
 	beego.GlobalControllerRouter["ipaas/controllers/account:SpaceController"] = append(beego.GlobalControllerRouter["ipaas/controllers/account:SpaceController"],
 		beego.ControllerComments{
 			Method: "CreateSpace",
-			Router: `/spaces`,
+			Router: `/`,
 			AllowHTTPMethods: []string{"post"},
 			MethodParams: param.Make(),
 			Params: nil})
@@ -18,7 +18,7 @@ func init() {
 	beego.GlobalControllerRouter["ipaas/controllers/account:SpaceController"] = append(beego.GlobalControllerRouter["ipaas/controllers/account:SpaceController"],
 		beego.ControllerComments{
 			Method: "ListSpace",
-			Router: `/spaces`,
+			Router: `/`,
 			AllowHTTPMethods: []string{"get"},
 			MethodParams: param.Make(),
 			Params: nil})
@@ -26,15 +26,23 @@ func init() {
 	beego.GlobalControllerRouter["ipaas/controllers/account:SpaceController"] = append(beego.GlobalControllerRouter["ipaas/controllers/account:SpaceController"],
 		beego.ControllerComments{
 			Method: "DeleteSpace",
-			Router: `/spaces/:space`,
+			Router: `/:namespace`,
 			AllowHTTPMethods: []string{"delete"},
+			MethodParams: param.Make(),
+			Params: nil})
+
+	beego.GlobalControllerRouter["ipaas/controllers/account:SpaceController"] = append(beego.GlobalControllerRouter["ipaas/controllers/account:SpaceController"],
+		beego.ControllerComments{
+			Method: "GetSpace",
+			Router: `/:namespace`,
+			AllowHTTPMethods: []string{"get"},
 			MethodParams: param.Make(),
 			Params: nil})
 
 	beego.GlobalControllerRouter["ipaas/controllers/account:TeamController"] = append(beego.GlobalControllerRouter["ipaas/controllers/account:TeamController"],
 		beego.ControllerComments{
 			Method: "CreateTeam",
-			Router: `/teams`,
+			Router: `/`,
 			AllowHTTPMethods: []string{"post"},
 			MethodParams: param.Make(),
 			Params: nil})
@@ -42,15 +50,15 @@ func init() {
 	beego.GlobalControllerRouter["ipaas/controllers/account:TeamController"] = append(beego.GlobalControllerRouter["ipaas/controllers/account:TeamController"],
 		beego.ControllerComments{
 			Method: "ListTeam",
-			Router: `/teams`,
-			AllowHTTPMethods: []string{"post"},
+			Router: `/`,
+			AllowHTTPMethods: []string{"get"},
 			MethodParams: param.Make(),
 			Params: nil})
 
 	beego.GlobalControllerRouter["ipaas/controllers/account:TeamController"] = append(beego.GlobalControllerRouter["ipaas/controllers/account:TeamController"],
 		beego.ControllerComments{
 			Method: "DeleteTeam",
-			Router: `/teams/:team`,
+			Router: `/:team`,
 			AllowHTTPMethods: []string{"delete"},
 			MethodParams: param.Make(),
 			Params: nil})
@@ -58,7 +66,7 @@ func init() {
 	beego.GlobalControllerRouter["ipaas/controllers/account:TeamController"] = append(beego.GlobalControllerRouter["ipaas/controllers/account:TeamController"],
 		beego.ControllerComments{
 			Method: "AddSpace",
-			Router: `/teams/:team/spaces`,
+			Router: `/:team/spaces`,
 			AllowHTTPMethods: []string{"post"},
 			MethodParams: param.Make(),
 			Params: nil})
@@ -66,8 +74,16 @@ func init() {
 	beego.GlobalControllerRouter["ipaas/controllers/account:TeamController"] = append(beego.GlobalControllerRouter["ipaas/controllers/account:TeamController"],
 		beego.ControllerComments{
 			Method: "AddUsers",
-			Router: `/teams/:team/users`,
+			Router: `/:team/users`,
 			AllowHTTPMethods: []string{"post"},
+			MethodParams: param.Make(),
+			Params: nil})
+
+	beego.GlobalControllerRouter["ipaas/controllers/account:TeamController"] = append(beego.GlobalControllerRouter["ipaas/controllers/account:TeamController"],
+		beego.ControllerComments{
+			Method: "GetUsers",
+			Router: `/:team/users`,
+			AllowHTTPMethods: []string{"get"},
 			MethodParams: param.Make(),
 			Params: nil})
 
@@ -76,6 +92,14 @@ func init() {
 			Method: "Create",
 			Router: `/`,
 			AllowHTTPMethods: []string{"post"},
+			MethodParams: param.Make(),
+			Params: nil})
+
+	beego.GlobalControllerRouter["ipaas/controllers/account:UserController"] = append(beego.GlobalControllerRouter["ipaas/controllers/account:UserController"],
+		beego.ControllerComments{
+			Method: "Delete",
+			Router: `/`,
+			AllowHTTPMethods: []string{"delete"},
 			MethodParams: param.Make(),
 			Params: nil})
 
@@ -92,14 +116,6 @@ func init() {
 			Method: "List",
 			Router: `/`,
 			AllowHTTPMethods: []string{"get"},
-			MethodParams: param.Make(),
-			Params: nil})
-
-	beego.GlobalControllerRouter["ipaas/controllers/account:UserController"] = append(beego.GlobalControllerRouter["ipaas/controllers/account:UserController"],
-		beego.ControllerComments{
-			Method: "Delete",
-			Router: `/:user`,
-			AllowHTTPMethods: []string{"delete"},
 			MethodParams: param.Make(),
 			Params: nil})
 

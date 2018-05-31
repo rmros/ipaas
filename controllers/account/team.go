@@ -1,5 +1,5 @@
 /*
-Copyright [yyyy] [name of copyright owner]
+Copyright [huangjia] [name of copyright owner]
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -37,17 +37,23 @@ type TeamController struct {
 // CreateTeam CreateTeam
 // @Title CreateTeam server
 // @Description create team
-// @Success 200		{object}	models.Space
-// @router /teams [post]
+// @Success 200		{object}	models.Team
+// @Param	body		body 	models.Team		true	"body for team content"
+// @router / [post]
 func (c *TeamController) CreateTeam() {
 	team, err := validate.ValidateTeam(c.Ctx.Request)
 	if err != nil {
 		c.Response400(err)
 		return
 	}
+	if team.Exsit() {
+		c.Response400(fmt.Errorf("team [%v] was exsit in db", team.Name))
+		return
+	}
 	if err = team.Create(); err != nil {
 		glog.Errorf("create team [%v] err: %v", team.Name, err)
 		c.Response500(err)
+		return
 	}
 	c.Response(200, "ok")
 }
@@ -55,8 +61,8 @@ func (c *TeamController) CreateTeam() {
 // DeleteTeam DeleteTeam
 // @Title DeleteTeam server
 // @Description delete team
-// @Success 200		{object}	models.Space
-// @router /teams/:team [delete]
+// @Success 200
+// @router /:team [delete]
 func (c *TeamController) DeleteTeam() {
 	teamName := c.GetString(":team")
 	if teamName == "" {
@@ -73,8 +79,8 @@ func (c *TeamController) DeleteTeam() {
 // ListTeam ListTeam
 // @Title ListTeam server
 // @Description list team
-// @Success 200		{object}	models.models.Space
-// @router /teams [post]
+// @Success 200		{object}	[]models.Team
+// @router / [get]
 func (c *TeamController) ListTeam() {
 	teams, err := new(models.Team).ListAll()
 	if err != nil {
@@ -87,8 +93,8 @@ func (c *TeamController) ListTeam() {
 // AddUsers AddUsers
 // @Title AddUsers server
 // @Description add users to Team
-// @Success 200		{object}	models.models.Space
-// @router /teams/:team/users [post]
+// @Success 200		{object}	models.User
+// @router /:team/users [post]
 func (c *TeamController) AddUsers() {
 	users, err := validate.ValidateTeamAddUsers(c.Ctx.Request)
 	if err != nil {
@@ -103,11 +109,29 @@ func (c *TeamController) AddUsers() {
 	c.Response(200, "ok")
 }
 
+// GetUsers GetUsers
+// @Title GetUsers server
+// @Description get users from Team
+// @Success 200		{object}	[]models.User
+// @router /:team/users [get]
+func (c *TeamController) GetUsers() {
+	id, _ := c.GetUint32(":team")
+	team := &models.Team{}
+	team.ID = uint(id)
+	users, err := team.GetTeamUsers()
+	if err != nil {
+		c.Response500(err)
+		return
+	}
+	c.Response(200, users)
+}
+
 // AddSpace AddSpace
 // @Title AddSpace server
 // @Description add namespace to team
-// @Success 200		{object}	models.models.Space
-// @router /teams/:team/spaces [post]
+// @Param	body		body 	models.Space	true	"body for user content"
+// @Success 200		{object}	models.Space
+// @router /:team/spaces [post]
 func (c *TeamController) AddSpace() {
 	space, err := validate.ValidateSpace(c.Ctx.Request)
 	if err != nil {

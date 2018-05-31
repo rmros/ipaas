@@ -1,5 +1,5 @@
 /*
-Copyright [yyyy] [name of copyright owner]
+Copyright [huangjia] [name of copyright owner]
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -308,4 +308,8 @@ func (c *clientset) PersistentVolumeClaims() iv1.PersistentVolumeClaimInterface 
 
 func (c *clientset) StorageClasses() isv1.StorageClassInterface {
 	return isv1.StorageClasses(c.Clientset)
+}
+
+func (c *clientset) Nodes() iv1.NodeInterface {
+	return iv1.Nodes(c.Clientset)
 }

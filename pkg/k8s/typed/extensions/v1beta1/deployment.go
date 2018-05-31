@@ -1,5 +1,5 @@
 /*
-Copyright [yyyy] [name of copyright owner]
+Copyright [huangjia] [name of copyright owner]
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -86,7 +86,7 @@ func (client *deployments) DeleteDeploymentByLabels(labels, namespace string) er
 
 func (client *deployments) GetDeployment(name, namespace string) (*v1beta1.Deployment, error) {
 	deploy, err := client.AppsV1beta1().Deployments(namespace).Get(name, metav1.GetOptions{})
-	if err != nil {
+	if err != nil || deploy.Name == "" {
 		return nil, err
 	}
 	return deploy, nil
