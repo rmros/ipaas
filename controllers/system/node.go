@@ -176,6 +176,19 @@ func (c *NodeController) GetNode() {
 	c.Response(200, node)
 }
 
-func (c NodeController) GetMetric() {
-
+// GetNodeMetric get node metric
+// @Title GetNodeMetric server
+// @Description  get node metric
+// @Success 200		{object}	map[string]interface{}
+// @router /:name/metrics [get]
+func (c *NodeController) GetNodeMetric() {
+	nodeName := c.GetString(":name")
+	metricsName := c.GetString("type")
+	metrics, err := base.GetNodeMetrics(nodeName, metricsName)
+	if err != nil {
+		glog.Errorf("get container %v's metric %v err: %v", nodeName, metricsName)
+		c.Response500(err)
+		return
+	}
+	c.Response(200, metrics)
 }

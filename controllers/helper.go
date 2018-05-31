@@ -715,6 +715,26 @@ func GetPodMetrics(namespace, podName, metricName string) (map[string]interface{
 	return v, nil
 }
 
+// GetNodeMetrics get node metric
+func GetNodeMetrics(nodeName, metricName string) (map[string]interface{}, error) {
+	path := fmt.Sprintf("%s/api/v1/model/nodes/%s/metrics/%s", configz.GetString("kubernetes", "heapsterEndpoint", "127.0.0.1:30003"), nodeName, metricName)
+	log.Info(path)
+	heapsterHost := configz.GetString("kubernetes", "heapsterEndpoint", "http://127.0.0.1:30003")
+	log.Info("Creating remote Heapster client for %s", heapsterHost)
+	req, err := http.NewRequest("GET", path, nil)
+	if err != nil {
+		return nil, err
+	}
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	data, err := ioutil.ReadAll(res.Body)
+	v := map[string]interface{}{}
+	json.Unmarshal(data, &v)
+	return v, nil
+}
+
 // GetNode get node
 func GetNode(name, clusterID string) (*v1.Node, error) {
 	fake := k8s.GetClientset(clusterID)

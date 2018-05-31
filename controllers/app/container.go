@@ -87,12 +87,12 @@ func (c *ContainerController) ReCreateContainer() {
 	c.Response(200, "ok")
 }
 
-// GetMetric query pod metric
-// @Title GetMetric server
+// GetConatainerMetric query pod metric
+// @Title GetConatainerMetric server
 // @Description  query pod metric
-// @Success 200		{object}	[]models.Container
+// @Success 200		{object}	map[string]interface{}
 // @router /:name/metrics [get]
-func (c *ContainerController) GetMetric() {
+func (c *ContainerController) GetConatainerMetric() {
 	namespace := c.GetString(":namespace")
 	podName := c.GetString(":name")
 	metricsName := c.GetString("type")

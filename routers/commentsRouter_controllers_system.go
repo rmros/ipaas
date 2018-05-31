@@ -25,6 +25,14 @@ func init() {
 
 	beego.GlobalControllerRouter["ipaas/controllers/system:NodeController"] = append(beego.GlobalControllerRouter["ipaas/controllers/system:NodeController"],
 		beego.ControllerComments{
+			Method: "GetNodeMetric",
+			Router: `/:name/metrics`,
+			AllowHTTPMethods: []string{"get"},
+			MethodParams: param.Make(),
+			Params: nil})
+
+	beego.GlobalControllerRouter["ipaas/controllers/system:NodeController"] = append(beego.GlobalControllerRouter["ipaas/controllers/system:NodeController"],
+		beego.ControllerComments{
 			Method: "Scheduler",
 			Router: `/:node`,
 			AllowHTTPMethods: []string{"put"},

@@ -271,12 +271,12 @@ func (c *ServiceController) addServiceEnvs() {
 	c.Response(200, map[string]interface{}{"deploy": result})
 }
 
-// GetMetric Get service Metric
-// @Title GetMetric server
+// GetServiceMetric Get service Metric
+// @Title GetServiceMetric server
 // @Description Get service Metric
-// @Success 200
+// @Success 200		{object}	map[string]interface{}
 // @router /:service/metrics [get]
-func (c *ServiceController) GetMetric() {
+func (c *ServiceController) GetServiceMetric() {
 	clusterID := c.GetString(":cluster")
 	namespace := c.GetString(":namespace")
 	serviceName := c.GetString(":service")
