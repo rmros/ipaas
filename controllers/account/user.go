@@ -1,5 +1,5 @@
 /*
-Copyright [huangjia] [name of copyright owner]
+Copyright 2018 huangjia.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -113,7 +113,7 @@ func (c *UserController) Create() {
 	createnamespace := func() {
 		for clusterID, client := range client.GetClientsets() {
 			glog.Info(clusterID)
-			_, err := v1.Namespaces(client.Clientset).Create(toK8sNamespace(user.Name))
+			_, err := v1.Namespaces(client.Clientset).Create(base.ToK8sNamespace(user.Name))
 			if err != nil {
 				glog.Errorf("when add user,create k8s namespace [%v] in cluster [%v] err: %v", user.Name, clusterID, err)
 			}

@@ -1,5 +1,5 @@
 /*
-Copyright [huangjia] [name of copyright owner]
+Copyright 2018 huangjia.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -20,6 +20,9 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/golang/glog"
+
+	"ipaas/models"
 	"ipaas/pkg/tools/storage/redis"
 )
 
@@ -27,6 +30,8 @@ import (
 type BaseController struct {
 	Error
 	Namespace string
+	NeedAudit bool
+	Audit     *models.Audit
 }
 
 // Prepare runs after Init before request function execution. (Interceptor)
@@ -48,7 +53,13 @@ func (c *BaseController) Prepare() {
 }
 
 // Finish runs after request function execution.
-func (c *BaseController) Finish() {}
+func (c *BaseController) Finish() {
+	if c.NeedAudit {
+		if err := c.Audit.Insert(); err != nil {
+			glog.Errorf("record resource %v %v operator to db err: %v", c.Audit.ResourceType, c.Audit.ResourceRefrence, err)
+		}
+	}
+}
 
 // Response return response
 func (c *BaseController) Response(code int, data interface{}) {
@@ -63,4 +74,18 @@ func expiredToken(username, token string) bool {
 
 func isLogin(url, method string) bool {
 	return url == "/api/v1/users/login" && method == "POST"
+}
+
+func (c *BaseController) FinishAudit(clusterID, namespace, resourceType, resourceRefrence, operator string, status int, needAudit bool) {
+	if needAudit {
+		c.Audit = &models.Audit{
+			ClusterID:        clusterID,
+			Namespace:        namespace,
+			ResourceType:     resourceType,
+			ResourceRefrence: resourceRefrence,
+			Operation:        operator,
+			Status:           status,
+		}
+		c.NeedAudit = needAudit
+	}
 }

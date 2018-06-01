@@ -15,77 +15,19 @@
     },
     "basePath": "/api/v1",
     "paths": {
-        "/clusters/{cluster}/namespaces/": {
+        "/clusters/{cluster}/detail": {
             "get": {
                 "tags": [
-                    "clusters/:cluster/namespaces"
+                    "clusters/:cluster"
                 ],
-                "description": "list namespace",
-                "operationId": "SpaceController.ListSpace server",
+                "description": "get cluster detail info",
+                "operationId": "ClusterController.Overview server",
                 "responses": {
                     "200": {
                         "description": "",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.Space"
-                            }
+                            "$ref": "#/definitions/models.Overview"
                         }
-                    }
-                }
-            },
-            "post": {
-                "tags": [
-                    "clusters/:cluster/namespaces"
-                ],
-                "description": "create namespace",
-                "operationId": "SpaceController.CreateSpace server",
-                "parameters": [
-                    {
-                        "in": "body",
-                        "name": "body",
-                        "description": "body for user content",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.Space"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "",
-                        "schema": {
-                            "$ref": "#/definitions/models.Space"
-                        }
-                    }
-                }
-            }
-        },
-        "/clusters/{cluster}/namespaces/{namespace}": {
-            "get": {
-                "tags": [
-                    "clusters/:cluster/namespaces"
-                ],
-                "description": "get namespace by name",
-                "operationId": "SpaceController.GetSpace server",
-                "responses": {
-                    "200": {
-                        "description": "",
-                        "schema": {
-                            "$ref": "#/definitions/models.Space"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "tags": [
-                    "clusters/:cluster/namespaces"
-                ],
-                "description": "delete namespace",
-                "operationId": "SpaceController.DeleteSpace server",
-                "responses": {
-                    "200": {
-                        "description": ""
                     }
                 }
             }
@@ -375,6 +317,26 @@
                 "responses": {
                     "200": {
                         "description": ""
+                    }
+                }
+            }
+        },
+        "/clusters/{cluster}/namespaces/{namespace}/services/{service}/audits": {
+            "get": {
+                "tags": [
+                    "clusters/:cluster/namespaces/:namespace/services"
+                ],
+                "description": "Get service operation",
+                "operationId": "ServiceController.GetOperation server",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Audit"
+                            }
+                        }
                     }
                 }
             }
@@ -939,6 +901,144 @@
                 }
             }
         },
+        "models.Audit": {
+            "title": "Audit",
+            "type": "object",
+            "properties": {
+                "ClusterID": {
+                    "type": "string"
+                },
+                "appStatus": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "createAt": {
+                    "type": "string",
+                    "format": "string"
+                },
+                "id": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "namespace": {
+                    "type": "string"
+                },
+                "operation": {
+                    "type": "string"
+                },
+                "resourceRefrence": {
+                    "type": "string"
+                },
+                "resourceType": {
+                    "type": "string"
+                },
+                "userName": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.CPUOverview": {
+            "title": "CPUOverview",
+            "type": "object",
+            "properties": {
+                "AllocatedPersent": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "CPUAllocatable": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "CPUCapacity": {
+                    "type": "integer",
+                    "format": "int64"
+                }
+            }
+        },
+        "models.Cluster": {
+            "title": "Cluster",
+            "type": "object",
+            "properties": {
+                "apiHost": {
+                    "type": "string"
+                },
+                "apiProtocol": {
+                    "type": "string"
+                },
+                "apiToken": {
+                    "type": "string"
+                },
+                "apiVersion": {
+                    "type": "string"
+                },
+                "bindDomain": {
+                    "type": "string"
+                },
+                "bindingIP": {
+                    "type": "string"
+                },
+                "cert": {
+                    "type": "string"
+                },
+                "clusterName": {
+                    "type": "string"
+                },
+                "configDetail": {
+                    "type": "string"
+                },
+                "content": {
+                    "type": "string"
+                },
+                "creationTime": {
+                    "type": "string",
+                    "format": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "extention": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "isDefault": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "key": {
+                    "type": "string"
+                },
+                "publicIP": {
+                    "type": "string"
+                },
+                "resourcePrice": {
+                    "type": "string"
+                },
+                "storageID": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "webTeaminal": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Component": {
+            "title": "Component",
+            "type": "object",
+            "properties": {
+                "health": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
         "models.Config": {
             "title": "Config",
             "type": "object",
@@ -999,6 +1099,24 @@
                 },
                 "type": {
                     "type": "string"
+                }
+            }
+        },
+        "models.MemoryOverview": {
+            "title": "MemoryOverview",
+            "type": "object",
+            "properties": {
+                "AllocatedPersent": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "MemoryAllocatable": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "MemoryCapacity": {
+                    "type": "integer",
+                    "format": "int64"
                 }
             }
         },
@@ -1070,6 +1188,60 @@
                 },
                 "version": {
                     "$ref": "#/definitions/v1.NodeSystemInfo"
+                }
+            }
+        },
+        "models.NodeOverview": {
+            "title": "NodeOverview",
+            "type": "object",
+            "properties": {
+                "Heathy": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "Scheduler": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "Total": {
+                    "type": "integer",
+                    "format": "int64"
+                }
+            }
+        },
+        "models.Overview": {
+            "title": "PodOverview",
+            "type": "object",
+            "properties": {
+                "Error": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "Operation": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "Running": {
+                    "type": "integer",
+                    "format": "int64"
+                }
+            }
+        },
+        "models.PodOverview": {
+            "title": "PodOverview",
+            "type": "object",
+            "properties": {
+                "Error": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "Operation": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "Running": {
+                    "type": "integer",
+                    "format": "int64"
                 }
             }
         },
@@ -1328,8 +1500,12 @@
             "description": "TeamController team controller\n"
         },
         {
-            "name": "clusters/:cluster/namespaces",
-            "description": "SpaceController space controller\n"
+            "name": "clusters/:cluster/nodes",
+            "description": "NodeController node api server\n"
+        },
+        {
+            "name": "clusters/:cluster",
+            "description": "ClusterController cluster api server\n"
         },
         {
             "name": "clusters/:cluster/namespaces/:namespace/apps",

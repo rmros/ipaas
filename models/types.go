@@ -49,35 +49,36 @@ func init() {
 
 // Cluster is the structure of a cluster both in mysql table and json output
 type Cluster struct {
-	ID             string
-	ClusterName    string
-	Description    string
-	PublicIPs      string
-	BindingIPs     string
-	BindingDomains string
-	ConfigDetail   string
-	Extention      string
-	WebTerminal    string
-	StorageID      string
-	CreationTime   time.Time
-	IsDefault      int8
-	ResourcePrice  string
-	Type           int8
-	Cert           string
-	Key            string
-
-	// qing cloud's config
-	Zone            string
-	QingcloudURL    string
-	AccessKeyID     string
-	SecretAccessKey string
+	ID             string    `json:"id,omitempty"`
+	ClusterName    string    `json:"clusterName,omitempty"`
+	Description    string    `json:"description,omitempty"`
+	PublicIPs      string    `json:"publicIP,omitempty"`
+	BindingIPs     string    `json:"bindingIP,omitempty"`
+	BindingDomains string    `json:"bindDomain,omitempty"`
+	ConfigDetail   string    `json:"configDetail,omitempty"`
+	Extention      string    `json:"extention,omitempty"`
+	WebTerminal    string    `json:"webTeaminal,omitempty"`
+	StorageID      string    `json:"storageID,omitempty"`
+	CreationTime   time.Time `json:"creationTime,omitempty"`
+	IsDefault      int8      `json:"isDefault,omitempty"`
+	ResourcePrice  string    `json:"resourcePrice,omitempty"`
+	Type           int8      `json:"type,omitempty"`
 
 	// kubernetes cluster config
-	APIProtocol string
-	APIHost     string
-	APIToken    string
-	Content     string
-	APIVersion  string
+	Cert        string `json:"cert,omitempty"`
+	Key         string `json:"key,omitempty"`
+	APIProtocol string `json:"apiProtocol,omitempty"`
+	APIHost     string `json:"apiHost,omitempty"`
+	APIToken    string `json:"apiToken,omitempty"`
+	Content     string `json:"content,omitempty"`
+	APIVersion  string `json:"apiVersion,omitempty"`
+
+	// qing cloud's config
+	// Zone            string `json:""`
+	// QingcloudURL    string `json:""`
+	// AccessKeyID     string `json:""`
+	// SecretAccessKey string `json:""`
+
 }
 
 //App the application that use deploy
@@ -219,16 +220,26 @@ type TickScaleTask struct {
 	TargetCPUUtilizationPercentage *int32    `json:"targetCPUUtilizationPercentage,omitempty"`
 }
 
+var (
+	ServiceResourceType = "服务"
+	AppResourceType     = "应用"
+	StorageResourceType = "存储"
+	LBResourceType      = "负载均衡器"
+	MysqlResoureType    = "mysql"
+	RedisResourceType   = "redis"
+)
+
 // Audit is the operation recoder
 type Audit struct {
-	ID              uint      `json:"id,omitempty"`
-	UserName        string    `json:"userName,omitempty"`
-	Namespace       string    `json:"namespace,omitempty"`
-	ClusterName     string    `json:"clusterName,omitempty"`
-	ReferenceObject string    `json:"referenceObject,omitempty"`
-	Operation       string    `json:"operation,omitempty"`
-	Status          int       `json:"appStatus,omitempty"`
-	CreatedAt       time.Time `json:"createAt,omitempty"`
+	ID               uint      `json:"id,omitempty"`
+	UserName         string    `json:"userName,omitempty"`
+	Namespace        string    `json:"namespace,omitempty"`
+	ClusterID        string    `json:"ClusterID,omitempty"`
+	ResourceType     string    `json:"resourceType,omitempty"`
+	ResourceRefrence string    `json:"resourceRefrence,omitempty"`
+	Operation        string    `json:"operation,omitempty"`
+	Status           int       `json:"appStatus,omitempty"` //1 success 2 faild
+	CreatedAt        time.Time `json:"createAt,omitempty"`
 }
 
 // PodLifeCycle record service's pod life cycle
@@ -357,4 +368,50 @@ type Node struct {
 	CreateTime        metav1.Time       `json:"createT_at"`
 	NodeVersion       v1.NodeSystemInfo `json:"version"`
 	Containers        []Container       `json:"containers"`
+}
+
+// Overview include cluster detail info
+type Overview struct {
+	Cluster        Cluster     `json:"basic"`
+	Components     []Component `json:"components,omitempty"`
+	Teams          []*Team     `json:"teams,omitempty"`
+	Namespaces     []*Space    `json:"namespaces,omitempty"`
+	NodeOverview   `json:"node"`
+	CPUOverview    `json:"cpu"`
+	MemoryOverview `json:"memory"`
+	PodOverview    `json:"pod"`
+}
+
+// Component include k8s component's healthy info
+type Component struct {
+	Name    string `json:"name"`
+	Healthy bool   `json:"health"`
+}
+
+// NodeOverview include k8s node's count info
+type NodeOverview struct {
+	Total     int
+	Scheduler int
+	Heathy    int
+}
+
+// CPUOverview include k8s All node's cpu count info
+type CPUOverview struct {
+	CPUCapacity      int64
+	CPUAllocatable   int64
+	AllocatedPersent int64 //需要前端自己去算百分比
+}
+
+// MemoryOverview include k8s All node's memory count info
+type MemoryOverview struct {
+	MemoryCapacity    int64
+	MemoryAllocatable int64
+	AllocatedPersent  int64 //需要前端自己去算百分比
+}
+
+// PodOverview include k8s All node's pod count info
+type PodOverview struct {
+	Running   int64
+	Operation int64
+	Error     int64
 }

@@ -1,5 +1,5 @@
 /*
-Copyright [huangjia] [name of copyright owner]
+Copyright 2018 huangjia.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -44,21 +44,24 @@ type ServiceController struct {
 // @Param	body		body 	models.Service		true	"body for user content"
 // @router / [post]
 func (c *ServiceController) CreateService() {
+	clusterID := c.GetString(":cluster")
+	namespace := c.GetString(":namespace")
 	svc, err := validate.ValidateService(c.Ctx.Request)
 	if err != nil {
 		c.Response400(err)
+		c.FinishAudit(clusterID, namespace, models.ServiceResourceType, svc.Name, "创建", 2, true)
 		return
 	}
-	clusterID := c.GetString(":cluster")
-	namespace := c.GetString(":namespace")
 	service := svc.TOK8SService(namespace)
 	deployment := svc.TOK8SDeployment(namespace)
 	result, err := base.DelpoyService(clusterID, service, deployment)
 	if err != nil {
 		log.Error("deploy app where named %q err: %v", svc.Name, err)
 		c.Response500(fmt.Errorf("deploy app where named %q err: ", err))
+		c.FinishAudit(clusterID, namespace, models.ServiceResourceType, svc.Name, "创建", 2, true)
 		return
 	}
+	c.FinishAudit(clusterID, namespace, models.ServiceResourceType, svc.Name, "创建", 1, true)
 	c.Response(200, result)
 }
 
@@ -72,8 +75,10 @@ func (c *ServiceController) DeleteService() {
 	if err := base.DeleteService(name, namespace, clusterID); err != nil {
 		log.Error("delete service where named %q err: %v", name, err)
 		c.Response500(fmt.Errorf("delete service where named %q err: %v", name, err))
+		c.FinishAudit(clusterID, namespace, models.ServiceResourceType, name, "删除", 2, true)
 		return
 	}
+	c.FinishAudit(clusterID, namespace, models.ServiceResourceType, name, "删除", 1, true)
 	c.Response(200, "ok")
 }
 
@@ -300,4 +305,16 @@ func (c *ServiceController) GetServiceMetric() {
 		result[pod.Name] = metrics
 	}
 	c.Response(200, result)
+}
+
+// GetOperation Get service operation
+// @Title GetOperation server
+// @Description Get service operation
+// @Success 200		{object}	[]models.Audit
+// @router /:service/audits [get]
+func (c *ServiceController) GetOperation() {
+	// clusterID := c.GetString(":cluster")
+	// namespace := c.GetString(":namespace")
+	// serviceName := c.GetString(":service")
+	// new(models.Audit).GetAll()
 }

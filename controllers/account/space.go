@@ -1,5 +1,5 @@
 /*
-Copyright [huangjia] [name of copyright owner]
+Copyright 2018 huangjia.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ func (c *SpaceController) CreateSpace() {
 		return
 	}
 	ns := space.TOK8sNamespace()
-	if err = createNamespace(c.GetString(":cluster"), ns); err != nil {
+	if err = base.CreateNamespace(c.GetString(":cluster"), ns); err != nil {
 		c.Response500(err)
 		return
 	}
@@ -57,7 +57,7 @@ func (c *SpaceController) CreateSpace() {
 func (c *SpaceController) DeleteSpace() {
 	name := c.GetString(":namespace")
 	cluster := c.GetString(":cluster")
-	if err := deleteNamespace(cluster, name, ""); err != nil {
+	if err := base.DeleteNamespace(cluster, name, ""); err != nil {
 		c.Response500(err)
 		return
 	}
@@ -71,12 +71,12 @@ func (c *SpaceController) DeleteSpace() {
 // @router / [get]
 func (c *SpaceController) ListSpace() {
 	cluster := c.GetString(":cluster")
-	namespaces, err := listNamespace(cluster)
+	namespaces, err := base.ListNamespace(cluster)
 	if err != nil {
 		c.Response500(err)
 		return
 	}
-	c.Response(200, decodeNamespaces(namespaces))
+	c.Response(200, base.DecodeNamespaces(namespaces))
 }
 
 // GetSpace GetSpace
@@ -87,10 +87,10 @@ func (c *SpaceController) ListSpace() {
 func (c *SpaceController) GetSpace() {
 	cluster := c.GetString(":cluster")
 	name := c.GetString(":namespace")
-	namespace, err := getNamespace(cluster, name)
+	namespace, err := base.GetNamespace(cluster, name)
 	if err != nil {
 		c.Response500(err)
 		return
 	}
-	c.Response(200, decodeNamespace(namespace))
+	c.Response(200, base.DecodeNamespace(namespace))
 }

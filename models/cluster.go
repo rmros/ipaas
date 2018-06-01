@@ -25,7 +25,7 @@ func (cluster *Cluster) Create() error {
 
 // Get get one cluster by id
 func (cluster *Cluster) Get() error {
-	return mysql.GetDB().First(cluster, cluster.ID).Error
+	return mysql.GetDB().Model(cluster).Where("id=?", cluster.ID).First(cluster).Error
 }
 
 // GetByTeamID get cluster by teamID

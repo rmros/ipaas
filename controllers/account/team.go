@@ -1,5 +1,5 @@
 /*
-Copyright [huangjia] [name of copyright owner]
+Copyright 2018 huangjia.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -138,7 +138,7 @@ func (c *TeamController) AddSpace() {
 		c.Response400(err)
 		return
 	}
-	if err = createNamespace(c.GetString(":cluster"), space.TOK8sNamespace()); err != nil {
+	if err = base.CreateNamespace(c.GetString(":cluster"), space.TOK8sNamespace()); err != nil {
 		c.Response500(err)
 		return
 	}

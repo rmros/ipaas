@@ -137,6 +137,14 @@ func init() {
 
 	beego.GlobalControllerRouter["ipaas/controllers/app:ServiceController"] = append(beego.GlobalControllerRouter["ipaas/controllers/app:ServiceController"],
 		beego.ControllerComments{
+			Method: "GetOperation",
+			Router: `/:service/audits`,
+			AllowHTTPMethods: []string{"get"},
+			MethodParams: param.Make(),
+			Params: nil})
+
+	beego.GlobalControllerRouter["ipaas/controllers/app:ServiceController"] = append(beego.GlobalControllerRouter["ipaas/controllers/app:ServiceController"],
+		beego.ControllerComments{
 			Method: "ListServiceEvents",
 			Router: `/:service/events`,
 			AllowHTTPMethods: []string{"get"},

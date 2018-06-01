@@ -7,6 +7,14 @@ import (
 
 func init() {
 
+	beego.GlobalControllerRouter["ipaas/controllers/system:ClusterController"] = append(beego.GlobalControllerRouter["ipaas/controllers/system:ClusterController"],
+		beego.ControllerComments{
+			Method: "Overview",
+			Router: `/detail`,
+			AllowHTTPMethods: []string{"get"},
+			MethodParams: param.Make(),
+			Params: nil})
+
 	beego.GlobalControllerRouter["ipaas/controllers/system:NodeController"] = append(beego.GlobalControllerRouter["ipaas/controllers/system:NodeController"],
 		beego.ControllerComments{
 			Method: "ListNode",

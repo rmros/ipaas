@@ -35,9 +35,14 @@ func init() {
 				&account.TeamController{},
 			),
 		),
-		beego.NSNamespace("/clusters/:cluster/namespaces",
+		beego.NSNamespace("/clusters/:cluster/nodes",
 			beego.NSInclude(
-				&account.SpaceController{},
+				&system.NodeController{},
+			),
+		),
+		beego.NSNamespace("/clusters/:cluster",
+			beego.NSInclude(
+				&system.ClusterController{},
 			),
 		),
 		beego.NSNamespace("/clusters/:cluster/namespaces/:namespace/apps",
